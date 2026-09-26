@@ -290,7 +290,6 @@ export function KettenPage() {
                     buyLabel={t.products.buyOnEbay}
                     deliveryDate={chainDelivery}
                     quickLinkLabel={quickLinkLabel}
-                    shippingIncludedLabel={shippingLabel}
                     // K4: erste Reihe (bis zu vier Spalten bei ≥1280px)
                     // eager + fetchpriority high, Rest lazy.
                     priority={i < 4}

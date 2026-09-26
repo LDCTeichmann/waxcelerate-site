@@ -61,8 +61,10 @@
 .wxc-sibs em { font-style: normal; color: var(--wxp-green); font-weight: 600; }
 .wxc-sibs .pr { font-weight: 700; color: var(--tx1); font-size: 14px; white-space: nowrap; }
 .wxc-sibs a:hover b { color: var(--accent-soft); }
-.wxc-sibs a { border-radius: 10px; transition: background .2s, transform .2s; }
-.wxc-sibs a:hover { background: var(--sf2); transform: translateX(3px); }
+.wxc-sibs a { border-radius: 10px; border: 1px solid transparent; padding-left: 8px; padding-right: 8px; transition: background .2s, border-color .2s, box-shadow .2s; }
+@media (hover: hover) and (pointer: fine) {
+  .wxc-sibs a:hover { background: var(--sf2); border-color: var(--accent-soft); box-shadow: var(--card-shadow-hover); }
+}
 
 /* Kettenbreite nach Gangzahl: die eigene Gangzahl in Akzent, die anderen grau.
    Balkenlaenge relativ zur breitesten (9-fach). */

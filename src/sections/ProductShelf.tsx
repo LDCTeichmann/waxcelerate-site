@@ -41,8 +41,9 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, ChevronDown, BadgePercent } from 'lucide-react';
-import { products, accessories, starterSet, starterSetPrice, starterSetOptions, starterSetPriceFor, canCheckout, waxTierBreakdown } from '@/lib/data';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, BadgePercent } from 'lucide-react';
+import { products, accessories, starterSet, starterSetPrice, starterSetOptions, starterSetPriceFor, canCheckout, WAX_TIERS } from '@/lib/data';
+import { CardPerks } from '@/components/CardPerks';
 import { costPerApplication } from '@/lib/waxMath';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -98,7 +99,7 @@ function ShelfHead({ name, to, meta, body }: { name: string; to: string; meta: R
         {name}
       </Link>
       <div className="flex items-center gap-2 mt-1.5 h-5 min-w-0">{meta}</div>
-      <p className="text-[13px] leading-[1.4] mt-2 line-clamp-2 min-h-[2.8em]" style={{ color: 'var(--txm)' }}>{body}</p>
+      <p className="text-[14.5px] leading-[1.45] mt-2 line-clamp-2 min-h-[2.9em]" style={{ color: 'var(--tx2)' }}>{body}</p>
     </div>
   );
 }
@@ -121,7 +122,6 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   delivery: string;
 }) {
   const [size, setSize] = useState<Size>('500');
-  const [dealOpen, setDealOpen] = useState(false);
   const product = waxOf(variant, size);
   const s = t.products.shelf;
   const p = t.products;
@@ -133,8 +133,6 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   const grams = parseInt(product.weight!);
   const per100 = eur(product.price / (grams / 100), de);
   const perWax = costPerApplication(product);
-  const tiers = waxTierBreakdown(product);
-  const maxPct = Math.max(0, ...tiers.map(x => x.pct));
 
   return (
     <div className="shelf-card group relative flex flex-col rounded-[20px] overflow-hidden">
@@ -241,45 +239,17 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           </p>
         </div>
 
-        {/* Staffel als sichtbare gruene Pille statt einer 10,5-px-Zeile im
-            Fussstreifen; aufgeklappt drei Stufen mit Euro-Ersparnis. */}
-        {tiers.length > 0 && (
-          <div className="mt-3">
-            <button type="button" onClick={() => setDealOpen(o => !o)} aria-expanded={dealOpen}
-              className="shelf-deal inline-flex items-center gap-1.5 min-h-9 px-3 rounded-full text-[12.5px] font-semibold">
-              <BadgePercent className="h-3.5 w-3.5" aria-hidden />
-              {s.dealPill.replace('{pct}', String(maxPct))}
-              <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" style={{ transform: dealOpen ? 'rotate(180deg)' : 'none' }} aria-hidden />
-            </button>
-            {dealOpen && (
-              <>
-                <div className="grid grid-cols-3 gap-2 mt-2.5">
-                  {tiers.map(tier => (
-                    <div key={tier.qty} className="rounded-lg px-2.5 py-2" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
-                      <p className="num text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                        {p.quantityDiscountUnit.replace('{qty}', tier.qty === 4 ? '4+' : String(tier.qty))}
-                        <span className="shelf-deal-tx ml-1.5">−{tier.pct} %</span>
-                      </p>
-                      <p className="num text-meta mt-0.5" style={{ color: 'var(--txm)' }}>
-                        {eur(tier.unitPrice, de)} / {de ? 'Stk.' : 'pc.'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-meta mt-2" style={{ color: 'var(--txf)' }}>{p.quantityDiscountMechanism}</p>
-              </>
-            )}
-          </div>
-        )}
+        {/* Versand, Lieferdatum und alle Staffelstufen sichtbar statt hinter
+            einer aufklappbaren Pille (Luca, 26.09.2026). */}
+        <div className="mt-4">
+          <CardPerks t={t} delivery={delivery} tiers={WAX_TIERS} />
+          <p className="text-meta mt-1.5" style={{ color: 'var(--txf)' }}>{p.quantityDiscountMechanism}</p>
+        </div>
 
         {/* Fuss: Lieferung links, Details und Kauf unten rechts. mt-auto
             haelt die Fusszeile beider Karten auf einer Linie. */}
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between gap-x-3 gap-y-3 flex-wrap pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="flex items-center gap-1.5 num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
-              <Truck className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
-              <span>{s.delivery} {delivery}<span style={{ color: 'var(--txf)' }}> · {p.priceNoteShippingIncluded}</span></span>
-            </p>
             <div className="flex items-center gap-2 ml-auto">
               <Link to={`/produkt/${product.id}`} viewTransition
                 className="inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
@@ -586,12 +556,12 @@ function StarterSetPanel({ de, t, delivery }: { de: boolean; t: TranslationType;
           </p>
         </div>
 
+        <div className="mt-4">
+          <CardPerks t={t} delivery={delivery} />
+        </div>
+
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between gap-x-3 gap-y-3 flex-wrap pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="flex items-center gap-1.5 num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
-              <Truck className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
-              <span>{s.delivery} {delivery}</span>
-            </p>
             <Link
               to={`/starter-set?set=${chosen.opt.id}`}
               viewTransition

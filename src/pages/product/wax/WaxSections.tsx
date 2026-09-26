@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
-import { getProductById, trustStats, bundleOffer, canCheckout, isSoldOut } from '@/lib/data';
+import { getProductById, trustStats } from '@/lib/data';
 import { waxChooserRows, type ChooserCell, type RichContent } from '@/lib/productContent';
 import { REVIEWS, REVIEW_PHOTOS, photoCredit, photoAlt, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
-import { trackEbayClick, trackFormulaCompare } from '@/lib/analytics';
+import { trackFormulaCompare } from '@/lib/analytics';
 import { WAX_TOPICS, CHAIN_TOPICS } from '@/pages/product/faqTopics';
 import type { useLanguage } from '@/hooks/useLanguage';
+import { ProductMiniCard } from '@/components/ProductMiniCard';
 
 type T = ReturnType<typeof useLanguage>['t'];
 
@@ -31,7 +32,25 @@ function Cell({ c, de }: { c: ChooserCell; de: boolean }) {
   return c.kind ? <span className={`wxp-${c.kind}`}>{text}</span> : <>{text}</>;
 }
 
-export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?: string }) {
+// Luca, 26.09.2026: kein eigenes Kapitel mehr, sondern ein schmales Band
+// "Classic oder Pro?" mit Knopf; die Tabelle klappt erst auf Wunsch auf.
+// openCompare() oeffnet sie von aussen (Hinweis in der Kaufbox) und scrollt hin.
+export function openCompare() {
+  window.dispatchEvent(new CustomEvent('wxp-compare'));
+}
+
+export function WhichWax({ product, de }: { product: Product; de: boolean }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const onEvent = () => {
+      setOpen(true);
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setTimeout(() => ref.current?.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' }), 60);
+    };
+    window.addEventListener('wxp-compare', onEvent);
+    return () => window.removeEventListener('wxp-compare', onEvent);
+  }, []);
   const isPro = product.variant === 'pro';
   const size = product.weight === '300g' ? '300' : '500';
   const classic = getProductById(size === '300' ? 'wax-300' : 'wax-500');
@@ -44,10 +63,20 @@ export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?
   const other = cols.find(c => !c.here)!;
 
   return (
-    <section className="wxp-chapter" id="welches">
+    <section className="wxp-cmp-band" id="welches" ref={ref}>
       <div className="wxp-wrap">
-        <ChapterHead n={n ?? (de ? 'Kapitel 05' : 'Chapter 05')} title={de ? 'Welches Wachs passt zu dir?' : 'Which wax suits you?'}
-          lede={de ? 'Ehrlich verglichen, auch mit dem, was du gerade benutzt.' : 'An honest comparison, including what you use today.'} />
+        <div className="wxp-card wxp-cmp-bar">
+          <div>
+            <p className="t">{de ? 'Classic oder Pro?' : 'Classic or Pro?'}</p>
+            <p className="s">{de ? 'Beide Wachse und Kettenöl nebeneinander, ehrlich verglichen.' : 'Both waxes and chain oil side by side, honestly compared.'}</p>
+          </div>
+          <button type="button" className="wxp-cmp-toggle" aria-expanded={open} aria-controls="welches-tabelle"
+            onClick={() => { if (!open) trackFormulaCompare(product.id); setOpen(o => !o); }}>
+            {open ? (de ? 'Vergleich schließen' : 'Hide comparison') : (de ? 'Vergleich anzeigen' : 'Show comparison')}
+            <span aria-hidden className="chev" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>▾</span>
+          </button>
+        </div>
+        {open && (<div id="welches-tabelle" className="wxp-cmp-open">
         <div className="wxp-cmp-wrap">
           <div className="wxp-card wxp-cmp">
             <table>
@@ -93,6 +122,7 @@ export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?
             {other.p && <Link to={`/produkt/${other.p.id}`} onClick={() => trackFormulaCompare(product.id)}>{other.name} {de ? 'ansehen →' : 'view →'}</Link>}
           </div>
         </div>
+        </div>)}
       </div>
     </section>
   );
@@ -138,21 +168,45 @@ function Who({ r, de, about }: { r: Review; de: boolean; about?: string }) {
   );
 }
 
+// Einheitliche Darstellung der eBay-Zitate (Luca, 26.09.2026): Wortlaut
+// bleibt unveraendert, nur Satzzeichen und Emojis werden vereinheitlicht
+// (" ." → ".", "!!" → "!", fehlender Schlusspunkt ergaenzt).
+export function tidyQuote(text: string): string {
+  let s = text.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '').replace(/\s+/g, ' ').trim();
+  s = s.replace(/\s+([.,!?…])/g, '$1').replace(/([!?])\1+/g, '$1').replace(/\.{2,}(?!\.)/g, '…');
+  if (!/[.!?…*)]$/.test(s)) s += '.';
+  return s;
+}
+export const quoted = (text: string, de: boolean) => de ? `„${text}“` : `“${text}”`;
+
 // Kompakte Karte fuer die dreispaltige Stimmen-Reihe (v6): Zitat auf vier
 // Zeilen begrenzt, "mehr" klappt sie auf. Eigene Komponente statt Hook in der
 // .map() weiter unten (Regel 2).
 function CompactReviewCard({ r, de, about }: { r: Review; de: boolean; about?: string }) {
   const [expanded, setExpanded] = useState(false);
-  const text = de ? r.textDe : r.textEn;
+  // "mehr" nur, wenn das Zitat wirklich abgeschnitten ist (gemessen statt
+  // per Zeichenzahl geraten). Der Platz fuer den Knopf bleibt immer
+  // reserviert, damit alle drei Karten gleich aufgebaut sind.
+  const [clamped, setClamped] = useState(false);
+  const qRef = useRef<HTMLQuoteElement>(null);
+  useEffect(() => {
+    const el = qRef.current;
+    if (!el) return;
+    const check = () => setClamped(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const text = tidyQuote(de ? r.textDe : r.textEn);
   return (
     <figure className="wxp-card wxp-rvc">
       <Stars rating={r.rating ?? 5} color="#F5A623" />
-      <blockquote className={expanded ? undefined : 'clamp'}>„{text}“</blockquote>
-      {text.length > 140 && (
-        <button type="button" className="more" onClick={() => setExpanded(v => !v)}>
-          {expanded ? (de ? 'weniger' : 'less') : (de ? 'mehr' : 'more')}
-        </button>
-      )}
+      <blockquote ref={qRef} className={expanded ? undefined : 'clamp'}>{quoted(text, de)}</blockquote>
+      <button type="button" className="more" onClick={() => setExpanded(v => !v)}
+        style={{ visibility: clamped || expanded ? 'visible' : 'hidden' }} tabIndex={clamped || expanded ? 0 : -1}>
+        {expanded ? (de ? 'weniger' : 'less') : (de ? 'mehr' : 'more')}
+      </button>
       <Who r={r} de={de} about={about} />
     </figure>
   );
@@ -174,10 +228,10 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
       <section className="wxp-chapter wxp-rv-compact" id="stimmen">
         <div className="wxp-wrap">
           <ChapterHead n={chapter ?? (de ? 'Kapitel 06' : 'Chapter 06')} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
-          <p className="wxp-rv-line">
-            <span className="stars" aria-hidden>★★★★★</span>
+          <div className="wxp-rv-line">
+            <Stars rating={5} color="#F5A623" />
             {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'} · 100 % {de ? 'positiv' : 'positive'} · {trustStats.sold}+ {de ? 'verkauft' : 'sold'}
-          </p>
+          </div>
           <div className="wxp-rv-row">
             {shown.map(r => <CompactReviewCard key={r.id} r={r} de={de} about={aboutOf(r)} />)}
           </div>
@@ -208,7 +262,7 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
             </div>
             <div className="tx">
               <Stars rating={big.rating ?? 5} color="#F5A623" emptyColor="rgba(255,255,255,.2)" />
-              <blockquote>„{de ? big.textDe : big.textEn}“</blockquote>
+              <blockquote>{quoted(tidyQuote(de ? big.textDe : big.textEn), de)}</blockquote>
               <Who r={big} de={de} about={aboutOf(big)} />
             </div>
           </figure>
@@ -216,7 +270,7 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
             {rest.map(r => (
               <figure key={r.id} className="wxp-card wxp-rv">
                 <Stars rating={r.rating ?? 5} color="#F5A623" />
-                <blockquote>„{de ? r.textDe : r.textEn}“</blockquote>
+                <blockquote>{quoted(tidyQuote(de ? r.textDe : r.textEn), de)}</blockquote>
                 <Who r={r} de={de} about={aboutOf(r)} />
               </figure>
             ))}
@@ -301,8 +355,6 @@ export function DataFitLimits({ product, rc, specs, de, n }: { product: Product;
 
 // ── Wenn der Block leer ist · FAQ · Schluss ────────────────────────────────
 export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
-  const offer = bundleOffer(product);
-  const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2 });
   return (
     <section className="wxp-chapter">
       <div className="wxp-wrap">
@@ -312,11 +364,9 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
             <span className="lbl2">{de ? 'Selbst' : 'Yourself'}</span>
             <h3>{de ? 'Nachbestellen' : 'Reorder'}</h3>
             <p>{de ? 'Mehrere Blöcke auf einmal werden günstiger: 2 Stück 5 %, 3 Stück 10 %, ab 4 Stück 15 %. Kühl, trocken und dunkel gelagert wird Wachs nicht schlecht.' : 'Several blocks at once get cheaper: 2 pcs 5 %, 3 pcs 10 %, 4 or more 15 %. Stored cool, dry and dark, wax does not go off.'}</p>
-            {offer && !isSoldOut(product) && !canCheckout(product) && (
-              <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>
-                {offer.qty} × {product.weight?.replace('g', ' g')} {de ? 'für' : 'for'} {fmt(offer.total)} € →
-              </a>
-            )}
+            <div style={{ marginTop: 16 }}>
+              <ProductMiniCard product={product} />
+            </div>
           </div>
           <div className="wxp-card wxp-path">
             <span className="lbl2">{de ? 'Oder' : 'Or'}</span>

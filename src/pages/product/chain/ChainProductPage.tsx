@@ -46,6 +46,7 @@ export function ChainProductPage(props: {
       title: de ? 'Wo die Reibung sitzt' : 'Where the friction sits',
       teaser: de ? 'Warum ein fester Film besser schützt als Öl.' : 'Why a solid film protects better than oil.',
       preview: <FrictionPreview />,
+      photo: '/images/blog/chain-links-macro-800.webp',
       render: () => <FrictionLens de={de} />,
     },
     {
@@ -53,6 +54,7 @@ export function ChainProductPage(props: {
       title: de ? 'Was wir damit machen' : 'What we do with it',
       teaser: de ? 'Ein Wachsbad, Schritt für Schritt.' : 'A wax bath, step by step.',
       preview: <BathPreview de={de} />,
+      photo: '/images/blog/wax-bath-hanging-800.webp',
       render: () => <ChainProcess de={de} n="" />,
     },
     ...(withCalc ? [{
@@ -60,6 +62,7 @@ export function ChainProductPage(props: {
       title: de ? 'Rechnet sich das?' : 'Does it pay off?',
       teaser: de ? 'Deine Ersparnis mit deinem Fahrprofil.' : 'Your savings with your riding profile.',
       preview: <SavingsPreview de={de} />,
+      photo: '/images/blog/ride-road-golden-800.webp',
       render: () => <WaxCalculator product={product} profile={profile} de={de} mode="chain" chapter="" />,
     }] : []),
     {
@@ -67,6 +70,7 @@ export function ChainProductPage(props: {
       title: de ? 'Nach dem ersten Film' : 'After the first film',
       teaser: de ? 'Wie es weitergeht, wenn das Wachs nachlässt.' : 'What happens once the wax wears off.',
       preview: <RefillPreview de={de} />,
+      photo: '/images/blog/chain-waxed-macro-800.webp',
       render: () => <ChainAfter de={de} />,
     },
   ];

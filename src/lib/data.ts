@@ -132,7 +132,7 @@ export interface PdpScene { src: string; de: string; en: string; factDe: string;
 const CLASSIC_SCENES: PdpScene[] = [
   { src: '/images/blog/wax-blue-wire-chain-1600.webp', de: 'Das brauchst du', en: 'What you need', factDe: 'Block · Kette · Draht', factEn: 'Block · chain · wire' },
   { src: '/images/blog/wax-bath-hanging-1600.webp', de: 'Im Bad', en: 'In the bath', factDe: '85–90 °C · 10–15 min', factEn: '85–90 °C · 10–15 min' },
-  { src: '/images/compare/chain-wachs.webp', de: 'Das Ergebnis', en: 'The result', factDe: 'trocken · sauber', factEn: 'dry · clean' },
+  { src: '/images/blog/chain-drivetrain-closeup-1600.webp', de: 'Am Rad', en: 'On the bike', factDe: 'trocken · sauber', factEn: 'dry · clean' },
 ];
 // Bildstrecke der Kettenseite (Kettenseite v1, 15.09.2026), fuer alle Ketten
 // gleich: gewachst, Schloss dabei, im Karton. Getrennt von `images`, damit
@@ -145,7 +145,7 @@ const CHAIN_SCENES: PdpScene[] = [
 const PRO_SCENES: PdpScene[] = [
   { src: '/images/blog/wax-pro-box-open-1600.webp', de: 'Frisch ausgepackt', en: 'Fresh out of the box', factDe: 'MoS₂ · PFAS-frei', factEn: 'MoS₂ · PFAS-free' },
   { src: '/images/blog/wax-bath-hanging-1600.webp', de: 'Im Bad', en: 'In the bath', factDe: '85–90 °C · 10–15 min', factEn: '85–90 °C · 10–15 min' },
-  { src: '/images/compare/chain-wachs.webp', de: 'Das Ergebnis', en: 'The result', factDe: 'trocken · sauber', factEn: 'dry · clean' },
+  { src: '/images/blog/chain-drivetrain-closeup-1600.webp', de: 'Am Rad', en: 'On the bike', factDe: 'trocken · sauber', factEn: 'dry · clean' },
 ];
 
 /**

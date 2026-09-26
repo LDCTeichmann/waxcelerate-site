@@ -200,6 +200,14 @@ export const translations = {
       compareFormulaPro: 'Pro MoS₂ Formel',
       compareComponents: 'Komponenten',
       shippingHint: 'Werktags bis 15 Uhr bestellt, am selben Tag versandt · Versand kostenlos',
+      // Versand/Lieferung/Staffel-Block aller Produktkarten (CardPerks.tsx).
+      perks: {
+        freeShipping: 'Versand kostenlos',
+        arrives: 'bei dir',
+        tiersLabel: 'Mengenrabatt',
+        tierQty: '{qty} Stk.',
+        tierFrom: 'ab {qty}',
+      },
       // Regal — ersetzt die drei Tueren. Zwei Wachs-Tafeln (Classic/Pro) mit
       // Groessenschalter, danach Set, Ketten, Rewax. Siehe ProductShelf.tsx.
       shelf: {
@@ -307,6 +315,7 @@ export const translations = {
         rewaxTitle: 'Kette wachsen lassen',
         rewaxBody: 'Einschicken, fahrbereit zurück. Auch Umstieg von Öl.',
         rewaxPrice: '15,95 € je Kette',
+        rewaxBundle: 'ab {count} Ketten {price} je Kette',
         priceFrom: 'ab {price}',
       },
     },
@@ -330,7 +339,7 @@ export const translations = {
         { title: 'Du bleibst sauber.', body: 'Kein Ketten-Abdruck an der Wade, keine schwarzen Finger beim Rad-Einladen.' },
         { title: 'Im Gelenk mahlt nichts mehr.', body: 'Öl bindet Staub zu Schleifpaste zwischen Bolzen und Rolle. An trockenem Wachs haftet kein Dreck.' },
         { title: 'Der ganze Antrieb hält länger.', body: 'Die Kette oft 2–3× so lange, Kassette und Kettenblätter verschleißen mit ihr langsamer.' },
-        { title: 'Pflege wird selten.', body: 'Alle ~300 km neu wachsen statt nach jeder Regenfahrt ölen. Ohne Lappen und Kettenreiniger.' },
+        { title: 'Pflege wird selten.', body: 'Alle ~300 km neu wachsen, ausgereizt bis 550 km, statt nach jeder Regenfahrt ölen. Ohne Lappen und Kettenreiniger.' },
       ],
       proofPhoto: 'Foto',
       proofMicro: 'Mikroskop · 1000×',
@@ -631,7 +640,7 @@ export const translations = {
         },
         {
           q: 'Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?',
-          a: 'Bei trockenen Bedingungen empfehlen wir alle 300 km zu rewaxen, das ist das Optimum — die Kette läuft auch mal 400–500 km weiter, dann aber nicht mehr im besten Zustand. Bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
+          a: 'Bei trockenen Bedingungen empfehlen wir alle 300 km zu rewaxen, das ist das Optimum — ausgereizt läuft die Kette bis etwa 550 km, dann aber nicht mehr im besten Zustand für den Antrieb. Bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
@@ -655,7 +664,7 @@ export const translations = {
         },
         {
           q: 'Was ist eine Ketten-Rotation — und warum drei Ketten?',
-          a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — und der Aufwand pro Session bleibt fast gleich: eine Kette dauert rund 20 Minuten, drei gleichzeitig im Topf kaum länger. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
+          a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — und der Aufwand pro Session bleibt fast gleich: eine Kette dauert rund 20 Minuten, drei gleichzeitig im Topf kaum länger. Du wachst damit nur noch alle ~900 km nach (ausgereizt bis 1.650 km) statt alle ~300 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
         },
         {
           q: 'Ist PTFE im Kettenwachs gesundheitlich bedenklich?',
@@ -883,6 +892,13 @@ export const translations = {
       compareFormulaPro: 'Pro MoS₂ Formula',
       compareComponents: 'components',
       shippingHint: 'Weekday orders by 3 pm ship the same day · Free shipping',
+      perks: {
+        freeShipping: 'Free shipping',
+        arrives: 'arrives',
+        tiersLabel: 'Quantity discount',
+        tierQty: '{qty} pcs',
+        tierFrom: '{qty}+',
+      },
       shelf: {
         waxEyebrow: 'Chain wax — cast in Stuttgart',
         classicName: 'Classic',
@@ -944,6 +960,7 @@ export const translations = {
         rewaxTitle: 'Let us wax your chain',
         rewaxBody: 'Send it in, get it back ready to ride. Oil-to-wax too.',
         rewaxPrice: '€15.95 per chain',
+        rewaxBundle: '{price} per chain from {count} chains',
         priceFrom: 'from {price}',
       },
     },
@@ -964,7 +981,7 @@ export const translations = {
         { title: 'You stay clean.', body: 'No chain mark on your calf, no black fingers when loading the bike.' },
         { title: 'Nothing grinds in the joints.', body: 'Oil binds dust into grinding paste between pin and roller. Dry wax gives dirt nothing to stick to.' },
         { title: 'The whole drivetrain lasts longer.', body: 'The chain often lasts 2–3× as long, cassette and chainrings wear more slowly with it.' },
-        { title: 'Maintenance becomes rare.', body: 'Rewax roughly every 300 km instead of oiling after every wet ride. No rags, no degreaser.' },
+        { title: 'Maintenance becomes rare.', body: 'Rewax roughly every 300 km, up to 550 km if you push it, instead of oiling after every wet ride. No rags, no degreaser.' },
       ],
       proofPhoto: 'Photo',
       proofMicro: 'Microscope · 1000×',
@@ -1252,7 +1269,7 @@ export const translations = {
         },
         {
           q: 'How many kilometres does a waxed chain last — and how do I know when to re-wax?',
-          a: 'In dry conditions we recommend re-waxing every 300 km — that is the optimum. The chain will also run 400–500 km, just no longer in peak condition. In wet or MTB conditions, every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
+          a: 'In dry conditions we recommend re-waxing every 300 km — that is the optimum. Pushed to the limit the chain runs up to about 550 km, just no longer in peak condition for the drivetrain. In wet or MTB conditions, every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
@@ -1276,7 +1293,7 @@ export const translations = {
         },
         {
           q: 'What is a chain rotation system — and why three chains?',
-          a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — and the effort per session stays almost the same: one chain takes about 20 minutes, three at once barely longer. You then only re-wax every 1,200–1,800 km instead of every 400–500 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
+          a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — and the effort per session stays almost the same: one chain takes about 20 minutes, three at once barely longer. You then only re-wax every ~900 km (up to 1,650 km if you push it) instead of every ~300 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
         },
         {
           q: 'Is PTFE in chain wax harmful to health?',
