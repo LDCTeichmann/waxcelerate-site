@@ -206,7 +206,24 @@ function HotspotCard({ h, de, onClose }: { h: JourneyHotspot; de: boolean; onClo
 }
 
 // ─── Buehne: SVG + Ueberlagerungen, von aussen per Takt-Position gesteuert ───
-export interface StageApi { render: (b: number) => void; measure: () => void }
+/** Leerlauf-Effekte: zusaetzlicher Drehwinkel der Kette (rad) und ein leichtes
+ *  Heranatmen der Kamera (0…1). Nur fuer die Vorschau am Anfang. */
+export interface StageFx { spin: number; breathe: number }
+export interface StageApi { render: (b: number, fx?: StageFx) => void; measure: () => void }
+
+const ROMAN = ['I', 'II', 'III', 'IV', 'V'];
+const ACT_SCALE = ['~10 cm', '~1 cm', '~100 µm', '~10 µm', '~10 cm'];
+/** Was ungefaehr so breit ist wie der Bildausschnitt. Groessen: Handbreite
+ *  ~8,5 cm, Fingernagel ~1,2 cm, Haar ~70 µm, rotes Blutkoerperchen ~7,5 µm. */
+function widthRef(mm: number, de: boolean) {
+  const f = (v: string, w: string) => (de ? v : w);
+  if (mm > 150) return f(`≈ ${Math.round(mm / 85)} Handbreiten`, `≈ ${Math.round(mm / 85)} hand widths`);
+  if (mm > 55) return f('etwa eine Handbreite', 'about a hand’s width');
+  if (mm > 6 && mm < 25) return f('etwa ein Fingernagel', 'about a fingernail');
+  if (mm < 0.2 && mm >= 0.035) return f(`≈ ${Math.max(1, Math.round(mm / 0.07))} Haar${mm / 0.07 >= 1.5 ? 'e' : ''} breit`, `≈ ${Math.max(1, Math.round(mm / 0.07))} hair${mm / 0.07 >= 1.5 ? 's' : ''} wide`);
+  if (mm < 0.035 && mm > 0.004) return f(`≈ ${Math.max(1, Math.round(mm / 0.0075))} rote${mm / 0.0075 >= 1.5 ? '' : 's'} Blutkörperchen`, `≈ ${Math.max(1, Math.round(mm / 0.0075))} red blood cell${mm / 0.0075 >= 1.5 ? 's' : ''}`);
+  return '';
+}
 
 // Sichtfeld-Breite in Zehnerschritten. Die Kamera faehrt bis ~10 µm; was
 // darunter liegt, zeigt die Lupe mit eigenem Massstab (nm).
@@ -233,8 +250,9 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
   const thermo = useRef<HTMLDivElement>(null);
   const mag = useRef<HTMLDivElement>(null);
   const hots = useRef<HTMLDivElement>(null);
-  const cache = useRef<{ vars: Record<string, string>; alpha: number; dims: { W: number; H: number; mobile: boolean } | null; scale: string; therm: string; mag: string; scope: ScopeCfg | null; b: number }>(
-    { vars: {}, alpha: NaN, dims: null, scale: '', therm: '', mag: '', scope: null, b: 0 });
+  const acts = useRef<HTMLDivElement>(null);
+  const cache = useRef<{ vars: Record<string, string>; alpha: number; dims: { W: number; H: number; mobile: boolean } | null; scale: string; therm: string; mag: string; ref: string; scope: ScopeCfg | null; b: number }>(
+    { vars: {}, alpha: NaN, dims: null, scale: '', therm: '', mag: '', ref: '', scope: null, b: 0 });
 
   const measure = useCallback(() => {
     const el = view.current; if (!el) return;
@@ -244,12 +262,13 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
   }, []);
 
   const api = useMemo<Pick<StageApi, "render">>(() => ({
-    render(b: number) {
+    render(b: number, fx?: StageFx) {
       const c = cache.current, st = stage.current, s = svg.current;
       c.b = b;
       if (!c.dims) measure();
       const d = c.dims; if (!st || !s || !d) return;
       const cam = camAt(b);
+      if (fx?.breathe) cam.w *= 1 - 0.035 * fx.breathe;
       // Bildausschnitt: w passt in die Breite, Hoehe mit Reserve
       // Desktop: die Buehne ist vollflaechig, links liegt der Text ueber einem
       // Verlauf. Das Motiv bekommt deshalb nur ~62 % der Breite und sitzt
@@ -278,7 +297,7 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
       });
 
       // Kette bewegen (nur wenn sichtbar und der Winkel sich aendert)
-      const alpha = alphaAt(b);
+      const alpha = alphaAt(b) + (fx?.spin ?? 0);
       if (op.chain > 0.001 && alpha !== c.alpha) {
         c.alpha = alpha;
         const pins = pinsAt(alpha);
@@ -359,6 +378,8 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
         const r = m < 1.5 ? 1 : +m.toPrecision(2);
         const txt = `×${r.toLocaleString(de ? 'de-DE' : 'en-US')}`;
         if (c.mag !== txt) { c.mag = txt; mag.current.firstElementChild!.textContent = txt; }
+        const ref = widthRef(fov, de);
+        if (c.ref !== ref) { c.ref = ref; mag.current.lastElementChild!.textContent = ref; }
       }
       if (ruler.current) {
         const pos = clamp01((Math.log10(RULER_MM[0]) - Math.log10(fov)) / (Math.log10(RULER_MM[0]) - Math.log10(RULER_MM[1])));
@@ -367,6 +388,15 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
         const on = Math.round(pos * (RULER_LABELS.length - 1));
         ruler.current.querySelectorAll('span').forEach((el, i) => el.toggleAttribute('data-on', i === on));
       }
+
+      // Kapitelzeile beim Eintritt in einen neuen Akt, scrollgebunden
+      if (acts.current) acts.current.querySelectorAll<HTMLElement>('[data-act]').forEach(el => {
+        const a0 = ACT_START[+el.dataset.act!];
+        const o = smooth(a0 - 0.45, a0 - 0.12, b) * (1 - smooth(a0 + 0.12, a0 + 0.42, b));
+        el.style.opacity = o.toFixed(3);
+        el.style.visibility = o < 0.01 ? 'hidden' : 'visible';
+        el.style.transform = `translate3d(0, ${((a0 - b) * 40).toFixed(1)}px, 0)`;
+      });
 
       // Hotspots: der Kamera folgen, nur im eigenen Takt-Fenster sichtbar
       if (hots.current) {
@@ -423,10 +453,17 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
         </div>
         <div ref={thermo} className="jr-thermo" style={{ opacity: 0 }} aria-hidden><span>20 °C</span></div>
         <div ref={scaleBar} className="jr-scalebar" aria-hidden><span /><b /></div>
-        <div ref={mag} className="jr-mag" aria-hidden><b>×1</b><span>{de ? 'Vergrößerung' : 'Magnification'}</span></div>
+        <div ref={mag} className="jr-mag" aria-hidden><b>×1</b><span>{de ? 'Vergrößerung' : 'Magnification'}</span><i /></div>
         <div ref={ruler} className="jr-ruler" aria-hidden>
           {RULER_LABELS.map((l, i) => <span key={l} style={{ top: `${(i / (RULER_LABELS.length - 1)) * 92}%` }}>{l}</span>)}
           <i />
+        </div>
+        <div ref={acts} className="jr-acts" aria-hidden>
+          {JOURNEY_ACTS.map((a, i) => i === 0 ? null : (
+            <div key={i} data-act={i} style={{ visibility: 'hidden', opacity: 0 }}>
+              <span>{ROMAN[i]} · {ACT_SCALE[i]}</span><b>{de ? a.de : a.en}</b>
+            </div>
+          ))}
         </div>
         {setOpen && (
           <div ref={hots} className="jr-hots">
@@ -497,8 +534,18 @@ function JourneyScroll({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
   }, [open]);
   const scope = useMemo(() => scopeFor(pos.beat, pos.phase), [pos.beat, pos.phase]);
 
+  const [idle, setIdle] = useState(false);
+  const [nudge, setNudge] = useState(false);
+
   useLayoutEffect(() => {
     let raf = 0, shown = -1, target = 0, last = 0, lastKey = '';
+    // Leerlauf-Vorschau: Kette laeuft von selbst aufs Blatt. `base` ist der
+    // Drehwinkel, `resid` der Rest ueber einem Vielfachen von zwei Teilungen,
+    // der beim Losscrollen bis b = 0,8 ausklingt. Zwei Teilungen weiter sieht
+    // die Kette identisch aus, darum passt das Gelenk bei b = 1 wieder genau.
+    const fx = { base: 0, resid: 0, breathe: 0, t: 0 };
+    let lastInput = performance.now(), idleRaf = 0, idleOn = false, idleLast = 0, bNow = 0;
+    const fxAt = (b: number) => ({ spin: fx.base + fx.resid * (1 - smooth(0, 0.8, b)), breathe: fx.breathe });
     const read = () => {
       const el = track.current; if (!el) return;
       const r = el.getBoundingClientRect();
@@ -512,21 +559,61 @@ function JourneyScroll({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
       if (shown < 0 || Math.abs(target - shown) > 0.2) shown = target;
       else shown += (target - shown) * (1 - Math.pow(1 - 0.14, dt / 16.7));
       if (Math.abs(target - shown) < 0.00004) shown = target;
-      const b = beatAt(shown * UNITS);
-      stage.current?.render(b);
+      const b = beatAt(shown * UNITS); bNow = b;
+      if (!idleOn && fx.breathe > 0) { fx.breathe *= Math.pow(0.9, dt / 16.7); if (fx.breathe < 0.002) fx.breathe = 0; }
+      stage.current?.render(b, fxAt(b));
       const oh = openRef.current && JOURNEY_HOTSPOTS.find(h => h.id === openRef.current);
       if (oh && (b < oh.from - 0.05 || b > oh.to + 0.05)) setOpen(null);
       const beat = Math.min(BEATS.length - 1, Math.floor(b)), phase = b - beat >= 0.5 ? 1 : 0;
       const key = `${beat}.${phase}`;
       if (key !== lastKey) { lastKey = key; setPos({ beat, phase }); }
-      if (shown !== target) raf = requestAnimationFrame(frame); else last = 0;
+      if (shown !== target || (!idleOn && fx.breathe > 0)) raf = requestAnimationFrame(frame); else last = 0;
     };
-    const kick = () => { read(); if (!raf) raf = requestAnimationFrame(frame); };
+    const idleFrame = (now: number) => {
+      idleRaf = 0;
+      if (!idleOn) return;
+      const dt = idleLast ? Math.min(64, now - idleLast) : 16.7; idleLast = now;
+      fx.t += dt / 1000;
+      const ramp = smooth(0, 1.6, fx.t);
+      fx.base += (dt / 1000) * DELTA * 0.9 * ramp;
+      fx.breathe = ramp * (0.5 - 0.5 * Math.cos(fx.t * 0.9));
+      stage.current?.render(bNow, fxAt(bNow));
+      idleRaf = requestAnimationFrame(idleFrame);
+    };
+    const startIdle = () => {
+      if (idleOn) return;
+      idleOn = true; idleLast = 0; fx.t = 0;
+      fx.base = fxAt(bNow).spin; fx.resid = 0;
+      setIdle(true);
+      idleRaf = requestAnimationFrame(idleFrame);
+    };
+    const stopIdle = () => {
+      if (!idleOn) return;
+      idleOn = false; cancelAnimationFrame(idleRaf); idleRaf = 0;
+      const k = 2 * DELTA, r = Math.round(fx.base / k) * k;
+      fx.resid = fx.base - r; fx.base = r;
+      setIdle(false);
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    const onInput = () => { lastInput = performance.now(); stopIdle(); setNudge(false); };
+    const tick = window.setInterval(() => {
+      const quiet = performance.now() - lastInput;
+      if (document.hidden) return;
+      if (quiet > 3000 && bNow < 0.12 && shown === target) startIdle();
+      if (quiet > 8000 && bNow > 0.4 && bNow < RESULT - 0.3 && shown === target) setNudge(true);
+    }, 400);
+    const inputs = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+    inputs.forEach(e => window.addEventListener(e, onInput, { passive: true }));
+    const kick = () => { read(); if (Math.abs(target - shown) > 1e-5) onInput(); if (!raf) raf = requestAnimationFrame(frame); };
     const onResize = () => { stage.current?.measure(); shown = -1; kick(); };
     kick();
     window.addEventListener('scroll', kick, { passive: true });
     window.addEventListener('resize', onResize);
-    return () => { window.removeEventListener('scroll', kick); window.removeEventListener('resize', onResize); cancelAnimationFrame(raf); };
+    return () => {
+      window.removeEventListener('scroll', kick); window.removeEventListener('resize', onResize);
+      inputs.forEach(e => window.removeEventListener(e, onInput));
+      window.clearInterval(tick); cancelAnimationFrame(raf); cancelAnimationFrame(idleRaf);
+    };
   }, []);
 
   // Der schwebende Nach-oben-Knopf lag am Handy ueber dem Text.
@@ -557,7 +644,18 @@ function JourneyScroll({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
             ))}
           </div>
         }
-        extra={pos.beat === 0 && <p className="jr-hint" aria-hidden>{de ? 'Scrollen, um hineinzufahren' : 'Scroll to zoom in'}<span>↓</span></p>}
+        extra={<>
+          {pos.beat === 0 && (
+            <p className="jr-hint" data-idle={idle || undefined} aria-hidden>
+              <i className="jr-hint-ico" /><span className="jr-hint-txt">{de ? 'Scrollen, um hineinzufahren' : 'Scroll to zoom in'}</span>
+            </p>
+          )}
+          {nudge && !open && pos.beat > 0 && pos.beat < RESULT && (
+            <button type="button" className="jr-nudge" onClick={() => { setNudge(false); go(pos.beat + 1); }}>
+              {de ? 'Weiter' : 'Next'} <span aria-hidden>↓</span>
+            </button>
+          )}
+        </>}
         rail={
           <nav className="jr-rail" aria-label={de ? 'Akte der Reise' : 'Acts of the journey'}>
             {JOURNEY_ACTS.map((a, i) => (

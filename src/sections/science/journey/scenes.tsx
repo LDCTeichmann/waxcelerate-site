@@ -158,7 +158,7 @@ export const ChainLayer = memo(function ChainLayer({ id }: { id: string }) {
         <circle r={ROOT_R - 5.35} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="0.18" />
         <circle r={RING_INNER_R + 0.3} fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="0.6" />
         <text y={ROOT_R - 8.5} textAnchor="middle" fontSize="3" fontFamily="'IBM Plex Mono', ui-monospace, monospace" fontWeight="600"
-          fill="rgba(20,24,29,0.55)" letterSpacing="0.6" transform="rotate(180)">40T · BCD 110</text>
+          fill="rgba(20,24,29,0.32)" letterSpacing="0.6" transform="rotate(180)">40T · BCD 110</text>
         {/* Spider: fuenf Arme, Nabe, Bohrung der Achse */}
         {BOLTS.map(a => (
           <path key={a} d={SPIDER_ARM} transform={`rotate(${a - 180})`} fill={`url(#${id}-anod)`} stroke="rgba(255,255,255,0.16)" strokeWidth="0.3" />
