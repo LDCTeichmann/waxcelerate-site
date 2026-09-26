@@ -98,6 +98,20 @@ export function DatenschutzPage() {
         </section>
 
         <section className="mb-8">
+          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Ungefährer Ort auf „Kette wachsen lassen“</h2>
+          <p className="text-wx-tx2 leading-relaxed">
+            Auf der Seite „Kette wachsen lassen“ zeigen wir das voraussichtliche Rückgabe-Datum und das
+            Wetter für Ihre Region. Dafür verwendet unser Server die grobe Position (auf etwa 10 km
+            gerundet), die Vercel beim Abruf aus der IP-Adresse ableitet. Es findet kein Zugriff auf den
+            Gerätestandort statt, und die Position wird weder gespeichert noch an Dritte weitergegeben;
+            für die Wettervorschau wird nur der Mittelpunkt der zugehörigen Postleitzahl-Region an den
+            Wetterdienst Bright Sky (Daten des Deutschen Wetterdienstes) übermittelt. Rechtsgrundlage ist
+            unser berechtigtes Interesse an einer hilfreichen Darstellung (Art. 6 Abs. 1 lit. f DSGVO).
+            Sie können den Ort jederzeit per Postleitzahl ändern.
+          </p>
+        </section>
+
+        <section className="mb-8">
           <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Ihre Rechte</h2>
           <p className="text-wx-tx2 leading-relaxed">
             Gemäß Art. 15–21 DSGVO haben Sie folgende Rechte hinsichtlich Ihrer personenbezogenen Daten:

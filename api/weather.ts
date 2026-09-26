@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 /**
  * GET /api/weather?stadt=<slug>  oder  ?lat=<..>&lon=<..>
- * „Deine Kette an deinem Ort" auf /kette-wachsen-lassen (PLZ-Eingabe → die
- * Seite schickt die Koordinaten der PLZ-Leitregion, src/pages/rewax/plzRegions.ts)
+ * „Dein Ort" auf /kette-wachsen-lassen (Ort aus /api/locate oder PLZ-Eingabe →
+ * die Seite schickt die Koordinaten der PLZ-Leitregion, src/pages/rewax/plzRegions.ts)
  * und die Wachs-Woche der Stadtseiten (`stadt`).
  *
  * Quelle: Bright Sky (api.brightsky.dev, MIT), das die offenen Daten des

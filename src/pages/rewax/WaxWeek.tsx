@@ -9,9 +9,12 @@
 // Dazu das Rückgabe-Fenster aus dates.ts — rein lokal gerechnet, deshalb auch
 // dann da, wenn das Wetter nicht lädt (z. B. im Vite-Dev ohne /api).
 //
-// Hauptseite: PLZ-Eingabe (erste zwei Ziffern → Leitregion, plzRegions.ts).
-// Stadtseiten: fester Ort. Kein Standortzugriff, keine Cookies; die PLZ bleibt
-// im localStorage des Besuchers.
+// Hauptseite: Ort automatisch grob aus der Verbindung (/api/locate →
+// nächste PLZ-Leitregion), per „Ort ändern" überschreibbar mit der PLZ (erste
+// zwei Ziffern → Leitregion, plzRegions.ts). Ohne beides kein Ersatzort — die
+// Seite fragt dann nach der PLZ, statt Stuttgart als „deinen Ort" zu zeigen.
+// Stadtseiten: fester Ort. Kein Browser-Standortzugriff, keine Cookies; die
+// PLZ bleibt im localStorage des Besuchers.
 
 import { useEffect, useState } from 'react';
 import {
@@ -21,7 +24,7 @@ import {
 import { cityIntervalKm, rewaxesPerYear, cardFor } from '@/pages/rewax/cities';
 import { eur } from '@/pages/rewax/content';
 import { returnWindow, formatWindow, type State } from '@/pages/rewax/dates';
-import { regionForPlz, climateReference, PLZ_REGIONS } from '@/pages/rewax/plzRegions';
+import { regionForPlz, climateReference, nearestRegion, type PlzRegion } from '@/pages/rewax/plzRegions';
 
 export interface WaxDay {
   date: string; tMax: number | null; tMin: number | null; rainMm: number; wet: boolean; icon: string;
@@ -69,7 +72,7 @@ function firstWetRun(days: WaxDay[]) {
   return null;
 }
 
-const tile = 'text-[12.5px] leading-relaxed rounded-xl px-3 py-2.5';
+const TILE = 'text-[12.5px] leading-relaxed rounded-xl px-3 py-2.5';
 
 /** Rückgabe-Fenster als Satz: „Heute eingeworfen → zurück ca. Di 23.–Do 25.9." */
 export function ReturnWindowLine({ state, de, className = '' }: { state: State; de: boolean; className?: string }) {
@@ -94,11 +97,15 @@ export function ReturnWindowLine({ state, de, className = '' }: { state: State; 
   );
 }
 
-export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
+export function WaxWeekView({ data, name, de, state, compact, hideInterval, bare }: {
   data: WaxWeather; name: string; de: boolean; state?: State; compact?: boolean;
-  /** Hauptseite: das Intervall steht schon in der linken Karte. */
+  /** Hauptseite: das Intervall steht schon in der Kopfzeile der Karte. */
   hideInterval?: boolean;
+  /** Hauptseite: ohne eigene Karte, Titel und Quellenzeile, Hinweise als ruhige Zeilen. */
+  bare?: boolean;
 }) {
+  const tile = bare ? 'text-[13px] leading-relaxed' : TILE;
+  const tileBg = bare ? undefined : 'var(--sf2)';
   const loc = de ? 'de-DE' : 'en-GB';
   const wd = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString(loc, { weekday: 'short' });
   const wet = data.days.filter((d) => d.wet).length;
@@ -109,16 +116,19 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
   const frostDay = data.days.find((d) => d.tMin !== null && d.tMin <= 1);
 
   return (
-    <div className="rounded-2xl p-4 sm:p-5" style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+    <div className={bare ? '' : 'rounded-2xl p-4 sm:p-5'}
+      style={bare ? undefined : { background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+      {!bare && (
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
           {de ? `Wachs-Woche ${name}` : `Wax week ${name}`}
         </p>
         <p className="text-[12px] sm:text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'nächste 7 Tage' : 'next 7 days'}</p>
       </div>
+      )}
 
       {/* Streifen */}
-      <ol className="grid gap-1 mt-3" style={{ gridTemplateColumns: `repeat(${data.days.length}, minmax(0, 1fr))` }}>
+      <ol className={`grid gap-1 ${bare ? '' : 'mt-3'}`} style={{ gridTemplateColumns: `repeat(${data.days.length}, minmax(0, 1fr))` }}>
         {data.days.map((d, i) => {
           const Icon = ICONS[d.icon] ?? Cloud;
           // Kein Regen gemessen/vorhergesagt, aber eine Wahrscheinlichkeit:
@@ -126,11 +136,11 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
           const prob = !d.wet && d.rainProb != null && d.rainProb >= 30 ? d.rainProb : null;
           return (
             <li key={d.date} className="flex flex-col items-center rounded-xl py-2"
-              style={{ background: d.wet ? 'var(--accent-wash)' : 'transparent' }}>
+              style={{ background: d.wet ? (bare ? 'var(--sf2)' : 'var(--accent-wash)') : 'transparent' }}>
               <span className="text-[12px] sm:text-[11px] font-semibold" style={{ color: i === 0 ? 'var(--accent)' : 'var(--txm)' }}>
                 {i === 0 ? (de ? 'Heute' : 'Today') : wd(d.date)}
               </span>
-              <Icon className="h-5 w-5 my-1.5" style={{ color: d.wet ? 'var(--accent)' : 'var(--tx2)' }} aria-hidden />
+              <Icon className={bare ? 'h-4 w-4 my-1' : 'h-5 w-5 my-1.5'} style={{ color: d.wet && !bare ? 'var(--accent)' : 'var(--txm)' }} aria-hidden />
               <span className="num text-[12px] font-semibold" style={{ color: 'var(--tx1)' }}>{d.tMax ?? '–'}°</span>
               <span className="num text-[12px] sm:text-[10.5px]" style={{ color: 'var(--txf)' }}>{d.tMin ?? '–'}°</span>
               {!compact && (
@@ -141,7 +151,7 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
                     style={{ height: `${Math.min(100, (d.rainMm / maxRain) * 100)}%`, background: 'var(--accent)' }} />
                 </span>
               )}
-              <span className="num text-[10px] mt-1" style={{ color: d.wet ? 'var(--accent)' : 'var(--txff)' }}>
+              <span className="num text-[10px] mt-1" style={{ color: d.wet ? (bare ? 'var(--tx2)' : 'var(--accent)') : 'var(--txff)' }}>
                 {d.rainMm > 0 ? `${d.rainMm.toLocaleString(loc)} mm` : prob ? `${prob} %` : '–'}
               </span>
             </li>
@@ -150,18 +160,22 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
       </ol>
 
       {/* Übersetzt auf die Kette */}
-      <div className={`mt-4 grid gap-2.5 ${hideInterval ? '' : 'sm:grid-cols-2'}`}>
+      <div className={`grid ${bare ? 'mt-3 gap-1.5' : `mt-4 gap-2.5 ${hideInterval ? '' : 'sm:grid-cols-2'}`}`}>
         {!hideInterval && (
-          <p className={tile} style={{ background: 'var(--sf2)', color: 'var(--txm)' }}>
+          <p className={tile} style={{ background: tileBg, color: 'var(--txm)' }}>
             <strong style={{ color: 'var(--tx1)' }}>{de ? `${wet} nasse ${wet === 1 ? 'Tag' : 'Tage'}` : `${wet} wet ${wet === 1 ? 'day' : 'days'}`}</strong>
             {de
               ? ` — wer diese Woche fährt, braucht nach etwa ${interval} km frisches Wachs (trocken: 300 km).`
               : ` — riding this week, a chain needs fresh wax after about ${interval} km (dry: 300 km).`}
           </p>
         )}
-        <p className={tile} style={{ background: 'var(--sf2)', color: 'var(--txm)' }}>
+        <p className={tile} style={{ background: tileBg, color: 'var(--txm)' }}>
           <strong style={{ color: 'var(--tx1)' }}>{de ? 'Versand-Tipp: ' : 'Shipping tip: '}</strong>
-          {run
+          {run && run[0] === data.days[0]
+            ? (de
+              ? 'Regen ab heute. Schick die Kette jetzt ab, dann ist sie unterwegs, während es ohnehin nass ist.'
+              : "Rain from today. Post the chain now, so it travels while it's wet anyway.")
+            : run
             ? (de
               ? `Regen ${wd(run[0].date)}${run[0] !== run[1] ? `–${wd(run[1].date)}` : ''}. Schick die Kette davor ab, dann ist sie unterwegs, während es ohnehin nass ist.`
               : `Rain ${wd(run[0].date)}${run[0] !== run[1] ? `–${wd(run[1].date)}` : ''}. Post the chain just before, so it travels while it's wet anyway.`)
@@ -170,15 +184,15 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
               : 'No rainy spell ahead: ride the dry days, then send it in.')}
         </p>
         {state && (
-          <p className={`${tile} flex items-start gap-2`} style={{ background: 'var(--sf2)', color: 'var(--txm)' }}>
+          <p className={`${tile} flex items-start gap-2`} style={{ background: tileBg, color: 'var(--txm)' }}>
             <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: 'var(--accent)' }} aria-hidden />
             <ReturnWindowLine state={state} de={de} />
           </p>
         )}
         {alert && (
           <p className={`${tile} flex items-start gap-2 sm:col-span-2`}
-            style={{ background: 'color-mix(in srgb, var(--danger) 9%, var(--sf))', color: 'var(--txm)' }}>
-            <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: 'var(--danger)' }} aria-hidden />
+            style={{ background: bare ? undefined : 'color-mix(in srgb, var(--danger) 9%, var(--sf))', color: 'var(--txm)' }}>
+            <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: bare ? 'var(--txm)' : 'var(--danger)' }} aria-hidden />
             <span>
               <strong style={{ color: 'var(--tx1)' }}>{de ? 'Amtliche DWD-Warnung: ' : 'Official DWD warning: '}</strong>
               {de ? alert.headline : alert.headlineEn}
@@ -187,8 +201,8 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
           </p>
         )}
         {!alert && frostDay && (
-          <p className={`${tile} flex items-start gap-2 sm:col-span-2`} style={{ background: 'var(--accent-wash)', color: 'var(--txm)' }}>
-            <CloudSnow className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: 'var(--accent)' }} aria-hidden />
+          <p className={`${tile} flex items-start gap-2 sm:col-span-2`} style={{ background: bare ? undefined : 'var(--accent-wash)', color: 'var(--txm)' }}>
+            <CloudSnow className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: bare ? 'var(--txm)' : 'var(--accent)' }} aria-hidden />
             <span>
               <strong style={{ color: 'var(--tx1)' }}>{de ? `Frost ab ${wd(frostDay.date)}: ` : `Frost from ${wd(frostDay.date)}: `}</strong>
               {de
@@ -203,7 +217,7 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
         <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
           {de
             ? `Letzte 7 Tage: ${data.pastWetDays} ${data.pastWetDays === 1 ? 'nasser Tag' : 'nasse Tage'}, ${data.pastRainMm.toLocaleString(loc)} mm.`
-            : `Last 7 days: ${data.pastWetDays} wet ${data.pastWetDays === 1 ? 'day' : 'days'}, ${data.pastRainMm} mm.`}
+            : `Last 7 days: ${data.pastWetDays} wet ${data.pastWetDays === 1 ? 'day' : 'days'}, ${data.pastRainMm.toLocaleString(loc)} mm.`}
           {data.pastWetDays >= 2 && (de ? ' Klingt die Kette schon trocken?' : ' Does the chain sound dry already?')}
         </p>
         {data.pastWetDays >= 2 && (
@@ -212,9 +226,9 @@ export function WaxWeekView({ data, name, de, state, compact, hideInterval }: {
           </a>
         )}
       </div>
-      <p className="text-[12px] sm:text-[10.5px] mt-3" style={{ color: 'var(--txff)' }}>
+      {!bare && <p className="text-[12px] sm:text-[10.5px] mt-3" style={{ color: 'var(--txff)' }}>
         {de ? 'Wetterdaten und Warnungen: Deutscher Wetterdienst (DWD), über Bright Sky. Stündlich aktualisiert.' : 'Weather data and warnings: Deutscher Wetterdienst (DWD), via Bright Sky. Updated hourly.'}
-      </p>
+      </p>}
     </div>
   );
 }
@@ -232,119 +246,172 @@ export function WaxWeek({ slug, name, de }: { slug: string; name: string; de: bo
   return <div className="mt-8 max-w-[720px]"><WaxWeekView data={data} name={name} de={de} state={CITY_STATE[slug]} /></div>;
 }
 
-// ─── Hauptseite: PLZ-Werkzeug ───────────────────────────────────────────────
+// ─── Hauptseite: Orts-Werkzeug ──────────────────────────────────────────────
+// Eine ruhige Karte statt zwei Spalten: Kopfzeile „Bei dir: Köln · Ort
+// ändern", darunter die zwei Sätze, die eine Entscheidung auslösen
+// (Rückgabe-Datum, Intervall), dann die Woche klein. Reihenfolge der Quellen:
+// getippte PLZ → grober Ort aus der Verbindung → gar keiner (dann offene PLZ-
+// Eingabe statt eines Ersatzorts, der fälschlich nach „deinem Ort" aussähe).
 const PLZ_KEY = 'wx-rewax-plz';
-const DEFAULT_REGION = PLZ_REGIONS['70']; // Stuttgart, bis jemand seine PLZ tippt
 
 function readPlz() {
   try { return localStorage.getItem(PLZ_KEY) ?? ''; } catch { return ''; }
 }
 
+/** Grober Ort aus /api/locate; null solange unbekannt oder ohne Treffer. */
+function useAutoRegion() {
+  const [region, setRegion] = useState<PlzRegion | null>(null);
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/locate')
+      .then((r) => (r.status === 200 ? r.json() : null))
+      .then((d: { lat?: number; lon?: number } | null) => {
+        if (alive && d && typeof d.lat === 'number' && typeof d.lon === 'number') setRegion(nearestRegion(d.lat, d.lon));
+      })
+      // Vite-Dev liefert index.html statt JSON → json() wirft → kein Ort.
+      .catch(() => {})
+      .finally(() => { if (alive) setDone(true); });
+    return () => { alive = false; };
+  }, []);
+  return { region, done };
+}
+
+function RegionWeek({ region, de }: { region: PlzRegion; de: boolean }) {
+  // Koordinaten in Hundertsteln, ohne Punkt: sonst liest der Vite-Dev-Server
+  // „…lon=9.18" als Dateiendung „.18" und wirft ein Fehler-Overlay.
+  const data = useWaxWeather(`lat=${Math.round(region.lat * 100)}&lon=${Math.round(region.lon * 100)}`);
+  if (!data || data === 'error') return null;
+  return (
+    <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <p className="text-[12px] font-semibold uppercase tracking-[0.12em] mb-2.5" style={{ color: 'var(--txf)' }}>
+        {de ? 'Deine nächsten 7 Tage' : 'Your next 7 days'}
+      </p>
+      <WaxWeekView data={data} name={region.name} de={de} hideInterval compact bare />
+    </div>
+  );
+}
+
 export function LocalChainTool({ de }: { de: boolean }) {
   const [plz, setPlz] = useState('');
   const [km, setKm] = useState(3000);
+  const [editing, setEditing] = useState(false);
+  const auto = useAutoRegion();
   useEffect(() => { setPlz(readPlz()); }, []);
 
   const typed = plz.length >= 2 ? regionForPlz(plz) : null;
   const unknown = plz.length >= 2 && !typed;
-  const region = typed ?? DEFAULT_REGION;
-  // Koordinaten in Hundertsteln, ohne Punkt: sonst liest der Vite-Dev-Server
-  // „…lon=9.18" als Dateiendung „.18" und wirft ein Fehler-Overlay.
-  const data = useWaxWeather(`lat=${Math.round(region.lat * 100)}&lon=${Math.round(region.lon * 100)}`);
-  const ref = climateReference(region);
-  const n = rewaxesPerYear(ref, km);
-  const card = cardFor(n);
+  const region = typed ?? auto.region;
+  const showInput = editing || (auto.done && !region);
 
   const onPlz = (v: string) => {
     const digits = v.replace(/\D/g, '').slice(0, 5);
     setPlz(digits);
-    try { if (digits.length === 5) localStorage.setItem(PLZ_KEY, digits); } catch { /* privat/blockiert */ }
+    // Offen lassen, solange getippt wird — sonst klappte das Feld nach der
+    // zweiten Ziffer (Region erkannt) mitten im Tippen zu.
+    setEditing(true);
+    try { if (regionForPlz(digits)) localStorage.setItem(PLZ_KEY, digits); } catch { /* privat/blockiert */ }
   };
+
+  const ref = region ? climateReference(region) : null;
+  const n = ref ? rewaxesPerYear(ref, km) : 0;
+  const card = cardFor(n);
 
   return (
     <section id="dein-ort" className="scroll-mt-24 py-12 sm:py-16" style={{ borderTop: '1px solid var(--bd2)' }}>
-      <div className="mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14">
-        <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>{de ? 'Dein Ort' : 'Your area'}</p>
-        <h2 className="font-display font-bold text-wx-tx1 leading-tight"
-          style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.2rem)', letterSpacing: '-0.02em' }}>
-          {de ? 'Was deine Kette bei dir erwartet.' : 'What your chain faces where you live.'}
-        </h2>
+      <div className="wx-frame">
+        <div className="max-w-[720px]">
+          <p className="eyebrow mb-2" style={{ color: 'var(--accent-soft)' }}>{de ? 'Dein Ort' : 'Your area'}</p>
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight"
+            style={{ fontSize: 'clamp(1.35rem, 2.6vw, 1.75rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Wann sie zurück ist, und wie oft sie fällig wird.' : "When it's back, and how often it's due."}
+          </h2>
 
-        <div className="mt-6 grid lg:grid-cols-[300px_minmax(0,1fr)] gap-5 lg:gap-8 items-start">
-          {/* Links: PLZ + Zahlen, die ohne Wetter-API auskommen */}
-          <div className="rounded-2xl p-4 sm:p-5" style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
-            <label htmlFor="rewax-plz" className="text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Deine Postleitzahl' : 'Your postcode'}
-            </label>
-            <div className="relative mt-2">
-              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none" style={{ color: 'var(--txf)' }} aria-hidden />
-              <input id="rewax-plz" type="text" inputMode="numeric" autoComplete="postal-code" maxLength={5}
-                value={plz} onChange={(e) => onPlz(e.target.value)} placeholder="z. B. 50667"
-                aria-describedby="rewax-plz-hint"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl text-base sm:text-sm outline-none num"
-                style={{ background: 'var(--sf)', border: `1px solid ${unknown ? 'var(--danger)' : 'var(--bd2)'}`, color: 'var(--tx1)' }} />
+          <div className="mt-5 rounded-2xl p-4 sm:p-5" style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+            {/* Kopfzeile: erkannter Ort + ändern */}
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+              <p className="flex items-center gap-2 text-[14px]" style={{ color: 'var(--txm)' }}>
+                <MapPin className="h-4 w-4 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />
+                {region
+                  ? <span>{de ? 'Bei dir: ' : 'Your area: '}<strong style={{ color: 'var(--tx1)' }}>{region.name}</strong>
+                      {!typed && <span style={{ color: 'var(--txf)' }}>{de ? ' (geschätzt)' : ' (estimated)'}</span>}</span>
+                  : <span>{auto.done ? (de ? 'Wo fährst du?' : 'Where do you ride?') : (de ? 'Ort wird ermittelt …' : 'Finding your area …')}</span>}
+              </p>
+              {region && showInput && editing && (
+                <button type="button" onClick={() => setEditing(false)}
+                  className="py-2 -my-2 text-[13px] font-semibold" style={{ color: 'var(--accent)' }}>
+                  {de ? 'Fertig' : 'Done'}
+                </button>
+              )}
+              {region && !showInput && (
+                <button type="button" onClick={() => setEditing(true)}
+                  className="py-2 -my-2 text-[13px] font-semibold underline underline-offset-2" style={{ color: 'var(--txm)' }}>
+                  {de ? 'Ort ändern' : 'Change'}
+                </button>
+              )}
             </div>
-            <p id="rewax-plz-hint" className="text-[12px] mt-1.5" style={{ color: unknown ? 'var(--danger)' : 'var(--txf)' }} aria-live="polite">
-              {unknown
-                ? (de ? 'Diese PLZ kennen wir nicht.' : "We don't know that postcode.")
-                : typed
-                  ? (de ? `Region ${region.name}` : `${region.name} area`)
-                  : plz.length === 1
-                    ? (de ? 'Eine Ziffer noch, dann kennen wir deine Region.' : 'One more digit and we know your area.')
-                    : (de ? `Solange nichts drinsteht: ${DEFAULT_REGION.name}` : `Until you type one: ${DEFAULT_REGION.name}`)}
-            </p>
 
-            <div className="mt-5 pt-4 space-y-4" style={{ borderTop: '1px solid rgba(var(--accent-rgb),0.18)' }}>
-              <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--txf)' }}>{de ? 'Rückgabe' : 'Back with you'}</p>
-                <p className="text-[13.5px] leading-snug mt-1" style={{ color: 'var(--txm)' }}>
+            {showInput && (
+              <div className="mt-3 max-w-[280px]">
+                <label htmlFor="rewax-plz" className="sr-only">{de ? 'Deine Postleitzahl' : 'Your postcode'}</label>
+                <input id="rewax-plz" type="text" inputMode="numeric" autoComplete="postal-code" maxLength={5}
+                  value={plz} onChange={(e) => onPlz(e.target.value)} placeholder={de ? 'Postleitzahl, z. B. 50667' : 'Postcode, e.g. 50667'}
+                  aria-describedby="rewax-plz-hint" autoFocus={editing}
+                  className="w-full px-4 py-2.5 rounded-xl text-base sm:text-sm outline-none num"
+                  style={{ background: 'var(--sf2)', border: `1px solid ${unknown ? 'var(--danger)' : 'var(--bd2)'}`, color: 'var(--tx1)' }} />
+                <p id="rewax-plz-hint" className="text-[12px] mt-1.5" style={{ color: unknown ? 'var(--danger)' : 'var(--txf)' }} aria-live="polite">
+                  {unknown
+                    ? (de ? 'Diese PLZ kennen wir nicht.' : "We don't know that postcode.")
+                    : plz.length === 1
+                      ? (de ? 'Eine Ziffer noch, dann kennen wir deine Region.' : 'One more digit and we know your area.')
+                      : (de ? 'Zwei Ziffern reichen.' : 'Two digits are enough.')}
+                </p>
+              </div>
+            )}
+
+            {region && ref && (
+              <div className="mt-4 space-y-2.5 text-[14px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+                <p className="flex items-start gap-2">
+                  <Clock className="h-4 w-4 flex-shrink-0 mt-[3px]" style={{ color: 'var(--accent)' }} aria-hidden />
                   <ReturnWindowLine state={region.state} de={de} />
                 </p>
-              </div>
-              <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--txf)' }}>{de ? 'Nachwachsen' : 'Rewax'}</p>
-                <p className="text-[13.5px] leading-snug mt-1" style={{ color: 'var(--txm)' }}>
-                  {de ? 'Etwa alle ' : 'Roughly every '}
-                  <strong style={{ color: 'var(--tx1)' }}>{cityIntervalKm(ref)} km</strong>
-                  {de ? ', bei ' : ', at '}
-                  <select value={km} onChange={(e) => setKm(Number(e.target.value))}
-                    aria-label={de ? 'Kilometer im Jahr' : 'Kilometres a year'}
-                    className="num font-semibold bg-transparent underline underline-offset-2 cursor-pointer outline-none"
-                    style={{ color: 'var(--tx1)' }}>
-                    {[1500, 3000, 5000, 8000].map((v) => (
-                      <option key={v} value={v}>{v.toLocaleString(de ? 'de-DE' : 'en-US')} km</option>
-                    ))}
-                  </select>
-                  {de ? ` im Jahr ${n} Auffrischungen.` : ` a year that's ${n} rewaxes.`}
-                  {card && (
-                    <>
-                      {' '}
-                      <a href="#geschenk" className="font-semibold underline underline-offset-2" style={{ color: 'var(--accent)' }}>
-                        {de ? `${card.count}er-Karte: ${eur(card.price / card.count, de)} je Mal` : `${card.count}-card: ${eur(card.price / card.count, de)} each`}
-                      </a>
-                    </>
-                  )}
-                </p>
-                <p className="text-[12px] sm:text-[11px] mt-1.5" style={{ color: 'var(--txff)' }}>
-                  {de
-                    ? `Klima-Referenz: DWD-Station ${ref.dwdStation}, ${ref.wetDays} Regentage im Jahr (Mittel 1991–2020).`
-                    : `Climate reference: DWD station ${ref.dwdStation}, ${ref.wetDays} rain days a year (1991–2020 mean).`}
+                <p className="flex items-start gap-2">
+                  <CloudRain className="h-4 w-4 flex-shrink-0 mt-[3px]" style={{ color: 'var(--accent)' }} aria-hidden />
+                  <span>
+                    {de ? 'Nachwachsen etwa alle ' : 'Rewax roughly every '}
+                    <strong style={{ color: 'var(--tx1)' }}>{cityIntervalKm(ref)} km</strong>
+                    {de ? ', bei ' : ', at '}
+                    <select value={km} onChange={(e) => setKm(Number(e.target.value))}
+                      aria-label={de ? 'Kilometer im Jahr' : 'Kilometres a year'}
+                      className="num font-semibold bg-transparent underline underline-offset-2 cursor-pointer outline-none"
+                      style={{ color: 'var(--tx1)' }}>
+                      {[1500, 3000, 5000, 8000].map((v) => (
+                        <option key={v} value={v}>{v.toLocaleString(de ? 'de-DE' : 'en-US')} km</option>
+                      ))}
+                    </select>
+                    {de ? ` im Jahr ${n}×.` : ` a year ${n}×.`}
+                    {card && (
+                      <>
+                        {' '}
+                        <a href="#geschenk" className="font-semibold underline underline-offset-2" style={{ color: 'var(--accent)' }}>
+                          {de ? `${card.count}er-Karte: ${eur(card.price / card.count, de)} je Mal` : `${card.count}-card: ${eur(card.price / card.count, de)} each`}
+                        </a>
+                      </>
+                    )}
+                  </span>
                 </p>
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Rechts: die Woche */}
-          <div style={{ minHeight: 220 }}>
-            {data && data !== 'error'
-              ? <WaxWeekView data={data} name={region.name} de={de} hideInterval />
-              : (
-                <div className="rounded-2xl p-5 text-[13px]" style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--txf)' }}>
-                  {data === 'error'
-                    ? (de ? 'Die Wettervorschau ist gerade nicht erreichbar. Rückgabe und Intervall links gelten trotzdem.' : 'The forecast is unavailable right now. Return date and interval on the left still apply.')
-                    : (de ? 'Wetter lädt …' : 'Loading weather …')}
-                </div>
-              )}
+            {region && <RegionWeek key={region.code} region={region} de={de} />}
+
+            {region && ref && (
+              <p className="text-[11.5px] leading-relaxed mt-4" style={{ color: 'var(--txff)' }}>
+                {de
+                  ? `Klima-Referenz DWD-Station ${ref.dwdStation} (${ref.wetDays} Regentage im Jahr, 1991–2020). Wetter: DWD über Bright Sky.${typed ? '' : ' Ort grob aus deiner Verbindung geschätzt, nicht gespeichert.'}`
+                  : `Climate reference DWD station ${ref.dwdStation} (${ref.wetDays} rain days a year, 1991–2020). Weather: DWD via Bright Sky.${typed ? '' : ' Area roughly estimated from your connection, not stored.'}`}
+              </p>
+            )}
           </div>
         </div>
       </div>

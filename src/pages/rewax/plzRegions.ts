@@ -6,7 +6,8 @@
 // Stadt entscheidet über die Feiertage im Rückgabe-Fenster (dates.ts);
 // Regionen über Landesgrenzen hinweg bekommen das Land ihrer Hauptstadt.
 //
-// Kein Standortzugriff: der Besucher tippt seine PLZ, sie bleibt im Browser.
+// Kein Browser-Standortzugriff: der Ort kommt grob aus der Verbindung
+// (/api/locate → nearestRegion) oder aus der getippten PLZ, die im Browser bleibt.
 
 import type { State } from './dates';
 import { REWAX_CITIES, type RewaxCity } from './cities';
@@ -60,6 +61,16 @@ export const PLZ_REGIONS: Record<string, PlzRegion> = Object.fromEntries(
 export function regionForPlz(plz: string): PlzRegion | null {
   const digits = plz.replace(/\D/g, '');
   return digits.length >= 2 ? PLZ_REGIONS[digits.slice(0, 2)] ?? null : null;
+}
+
+/** Nächste PLZ-Leitregion zu einer (grob geschätzten) Position — für den
+ *  automatischen Ort aus /api/locate. */
+export function nearestRegion(lat: number, lon: number): PlzRegion {
+  const dist = (r: PlzRegion) => {
+    const dLat = r.lat - lat, dLon = (r.lon - lon) * Math.cos((lat * Math.PI) / 180);
+    return dLat * dLat + dLon * dLon;
+  };
+  return Object.values(PLZ_REGIONS).reduce((best, r) => (dist(r) < dist(best) ? r : best));
 }
 
 /** Nächste der zwölf Städte mit DWD-Klimamitteln — ehrlich als Referenz genannt. */

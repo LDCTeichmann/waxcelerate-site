@@ -274,8 +274,8 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
   items.push({
     q: de ? 'Wie oft muss eine gewachste Kette neu gewachst werden?' : 'How often does a waxed chain need rewaxing?',
     a: de
-      ? 'Trocken auf Asphalt 400–550 km, bei Nässe, MTB oder gemischt 200–300 km, im Winter bei Dauerregen unter 200 km. Das zuverlässigste Signal ist aber das Ohr: Wird die Kette lauter und trockener, ist sie fällig.'
-      : 'Dry on tarmac 400–550 km, in the wet, on MTB or mixed 200–300 km, in winter with constant rain under 200 km. The most reliable signal is your ear though: when the chain gets louder and drier, it is due.',
+      ? 'Trocken auf Asphalt 300–550 km, bei Nässe, MTB oder gemischt 150–300 km, im Winter bei Dauerregen darunter. Das zuverlässigste Signal ist aber das Ohr: Wird die Kette lauter und trockener, ist sie fällig.'
+      : 'Dry on tarmac 300–550 km, in the wet, on MTB or mixed 150–300 km, in winter with constant rain less. The most reliable signal is your ear though: when the chain gets louder and drier, it is due.',
     link: { to: '/rechner/intervall', labelDe: 'Dein Intervall in Wochen berechnen', labelEn: 'Work out your interval in weeks' },
   });
 
