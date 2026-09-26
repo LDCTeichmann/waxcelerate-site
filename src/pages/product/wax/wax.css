@@ -764,3 +764,10 @@
   .wxp-dd-card:hover .pv-bg { transform: scale(1.05); opacity: .55; }
 }
 @media (prefers-reduced-motion: reduce) { .wxp-dd-card .pv-bg { transition: none; } }
+/* Mobil als Wischreihe statt vier Karten untereinander (wie .wxp-rv-row). */
+@media (max-width: 639px) {
+  .wxp-moments { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin: 40px -20px 0; padding: 2px 20px 10px; scrollbar-width: none; }
+  .wxp-moments::-webkit-scrollbar { display: none; }
+  .wxp-moment { flex: 0 0 78%; scroll-snap-align: start; }
+  .wxp-moment .ph { aspect-ratio: 16 / 10; }
+}
