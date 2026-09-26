@@ -65,15 +65,15 @@ export const COMPONENTS: ScienceComponent[] = [
     roleDe: 'Härtemodul', roleEn: 'Hardener', metric: '+75 °C',
     sumDe: 'Synthetisches Hartwachs (>90 % Kristallinität) hebt den Tropfpunkt auf ~75 °C — die Matrix hält Position unter Last statt wegzuwandern und stabilisiert die MoS₂-Einbettung thermisch.',
     sumEn: 'Synthetic hard wax (>90% crystallinity) raises the drop point to ~75 °C — the matrix holds position under load instead of migrating and thermally stabilises the MoS₂ embedding.',
-    whyDe: 'An Kontaktpunkten entstehen unter Last 45–55 °C. Weiches Wachs erreicht hier seine Grenze, migriert vom Gelenk weg und dünnt aus. Das härtere FT-Wachs (Tropfpunkt ~75 °C) bleibt an Ort und Stelle: weniger Migration, längere Intervalle. Gleichzeitig verhindert es, dass MoS₂-Partikel bei Wärme aus einer erweichten Matrix ausgeschwemmt werden.',
-    whyEn: 'Contact points reach 45–55 °C under load. Soft wax hits its limit here, migrating away from the joint and thinning out. The harder FT wax (drop point ~75 °C) stays put: less migration, longer intervals. It also prevents MoS₂ particles from being flushed out of a softened matrix.',
+    whyDe: 'Paraffin wird nicht erst bei 58–60 °C weich, sondern spürbar schon einige Grad darunter. In praller Sommersonne oder im heißen Auto rückt eine Kette in diesen Bereich, weiches Wachs kriecht dann aus dem Gelenk und dünnt aus. Das härtere FT-Wachs hebt den Tropfpunkt auf ~75 °C: der Film behält seine Form, und die MoS₂-Partikel bleiben eingebettet, statt aus einer erweichten Matrix zu wandern.',
+    whyEn: 'Paraffin does not wait for 58–60 °C to soften, it gets noticeably softer several degrees below. In full summer sun or a hot car a chain moves into that range, and soft wax creeps out of the joint and thins. The harder FT wax lifts the drop point to ~75 °C: the film keeps its shape, and the MoS₂ particles stay embedded instead of migrating out of a softened matrix.',
     physicsDe: [
-      'Das zweite Problem war der Sommer. An Kettenkontaktpunkten unter Last können Temperaturen 45–55 °C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze — es würde erweichen, migrieren, auf dem Schaltwerk landen statt in den Gelenkstiften.',
+      'Das zweite Problem war der Sommer. Paraffin wird nicht erst am Schmelzpunkt weich, sondern schon einige Grad darunter. In der Sonne, im heißen Auto oder auf einer langen Sommerausfahrt rückt die Kette in diesen Bereich. Reines Paraffin würde dann erweichen, wandern und auf dem Schaltwerk landen statt im Gelenk.',
       'Die Lösung war ein synthetisches Wachs, hergestellt über den Fischer-Tropsch-Prozess: eine Kohlenstoff-Syntheseroute, die Kohlenwasserstoffketten von außergewöhnlicher Reinheit liefert. Kein Schwefel, keine Aromaten, keine Verzweigungen — nur vollständig lineare Moleküle. Diese Reinheit resultiert in einer Kristallinität von über 90 % — deutlich höher als bei Erdölparaffin (65–80 %).',
       'In gezielt gewählter Konzentration ko-kristallisiert dieses Additiv mit der Basismatrix und bildet dichtere, defektärmere Kristalldomänen, die deutlich mehr Energie zum Schmelzen benötigen. Der effektive Tropfpunkt der Gesamtmatrix steigt auf ~72–78 °C. Das sichert nicht nur die Wachsschicht, sondern auch die MoS₂-Partikel in der Matrix — sie werden bei Wärme nicht aus erweichtem Wachs verdrängt.',
     ],
     physicsEn: [
-      'The second problem was summer. At chain contact points under load, temperatures can reach 45–55 °C. Unmodified paraffin wax would be at its thermal limit — it would soften, migrate, end up on the derailleur instead of the chain pins.',
+      'The second problem was summer. Paraffin does not soften only at its melting point but several degrees below it. In the sun, in a hot car or on a long summer ride the chain moves into that range. Plain paraffin would then soften, migrate and end up on the derailleur instead of in the joint.',
       'The solution was a synthetic wax produced via the Fischer-Tropsch process: a carbon synthesis route that yields hydrocarbon chains of exceptional purity. No sulfur, no aromatics, no branching — only perfectly linear molecules. This purity results in crystallinity above 90% — significantly higher than petroleum paraffin (65–80%).',
       'At a carefully chosen concentration, this additive co-crystallises with the base matrix and forms denser, more defect-free crystal domains requiring significantly more energy to melt. The effective drop point of the matrix rises to ~72–78 °C. This secures not just the wax layer, but also the MoS₂ particles within the matrix — they aren\'t displaced from softened wax under heat.',
     ],
@@ -112,12 +112,15 @@ export const COMPONENTS: ScienceComponent[] = [
     // das die einzige mu-Zahl, die die Seite noch fuehrt, und sie geht ueber
     // COMPONENTS auch in llms-full.txt und den vorgerenderten Rumpf — die
     // Bedingung muss also hier stehen, nicht nur im Fliesstext daneben.
+    // 2026-09-26: als `metric` (Kennzahl neben dem Namen) ist die mu-Zahl
+    // raus. Dort stand sie ohne Satz daneben, und eine Kette faehrt immer in
+    // feuchter Luft (0,1–0,2). Kennzahl ist jetzt die Partikelgroesse.
     node: 4, id: 'mos2',
     graphLabelDe: 'MoS₂', graphLabelEn: 'MoS₂',
     nameDe: 'Molybdändisulfid (MoS₂)', nameEn: 'Molybdenum disulfide (MoS₂)',
-    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: 'μ 0,03 trocken',
-    sumDe: 'Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03 in trockener Luft.',
-    sumEn: 'Hexagonal MoS₂ crystallites (P6₃/mmc, < 5 µm) shear along the van der Waals planes under contact pressure and form an Fe–S transfer film on the steel — boundary friction down to μ 0.03 in dry air.',
+    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: '< 5 µm',
+    sumDe: 'Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03 in trockener Luft, in feuchter Luft liegt der Wert höher.',
+    sumEn: 'Hexagonal MoS₂ crystallites (P6₃/mmc, < 5 µm) shear along the van der Waals planes under contact pressure and form an Fe–S transfer film on the steel — boundary friction down to μ 0.03 in dry air, higher in humid air.',
     whyDe: 'MoS₂ besteht aus S–Mo–S-Schichten, deren Interlayer-Bindungsenergie nur ~0,55 J/m² beträgt. Unter Druck (50–300 MPa) scheren die Schichten ab und lagern sich als 2–5 nm dünner Transferfilm auf der Metalloberfläche ab, verankert durch tribochemische Fe–S-Bindungen. Das senkt die Grenzreibung weit unter die von Öl.',
     whyEn: 'MoS₂ is built from S–Mo–S layers with an interlayer binding energy of only ~0.55 J/m². Under pressure (50–300 MPa) the layers shear and deposit as a 2–5 nm transfer film on the metal surface, anchored by tribochemical Fe–S bonds. This drops boundary friction well below oil.',
     physicsDe: [
@@ -164,24 +167,22 @@ export const COMPONENTS: ScienceComponent[] = [
     graphLabelDe: 'Antioxidans', graphLabelEn: 'Antioxidant',
     nameDe: 'Phenolisches Antioxidans', nameEn: 'Phenolic antioxidant',
     roleDe: 'Schutz', roleEn: 'Protection', metric: '12 Mo.',
-    sumDe: 'Doniert H-Atome an Peroxylradikale und bricht die Oxidationskaskade. Doppelter Schutz: verhindert MoS₂ → MoO₃-Umwandlung und schützt die Wachsmatrix vor Versprödung — 12 Monate stabile Lagerung.',
-    sumEn: 'Donates H atoms to peroxyl radicals and breaks the oxidation cascade. Dual protection: prevents MoS₂ → MoO₃ conversion and shields the wax matrix from embrittlement — 12 months of stable shelf life.',
-    whyDe: 'Sauerstoff greift an zwei Fronten an: Er oxidiert die Wachsmatrix (Peroxide → Versprödung) und wandelt MoS₂ an der Partikeloberfläche in MoO₃ um (Mo⁴⁺ → Mo⁶⁺), das sich nicht mehr so leicht scheren lässt. Feuchtigkeit beschleunigt diese Prozesse mehrfach. Das gehinderte phenolische Antioxidans unterbricht beide Kaskaden an der Wurzel.',
-    whyEn: 'Oxygen attacks on two fronts: it oxidises the wax matrix (peroxides → embrittlement) and converts MoS₂ at the particle surface into MoO₃ (Mo⁴⁺ → Mo⁶⁺), which no longer shears as easily. Humidity accelerates these processes several-fold. The hindered phenolic antioxidant interrupts both cascades at the root.',
+    sumDe: 'Doniert H-Atome an Peroxylradikale und bricht die Oxidationskaskade, bevor sie die Wachsmatrix versprödet. Das hält den Block 12 Monate stabil.',
+    sumEn: 'Donates H atoms to peroxyl radicals and breaks the oxidation cascade before it embrittles the wax matrix. That keeps the block stable for 12 months.',
+    whyDe: 'Sauerstoff greift Kohlenwasserstoffwachse langsam an: Radikale ziehen H-Atome aus den Ketten, es entstehen Peroxide, die Matrix versprödet und haftet schlechter am Stahl. Wärme und Licht beschleunigen das. Das gehinderte phenolische Antioxidans unterbricht diese Kettenreaktion an der Wurzel.',
+    whyEn: 'Oxygen slowly attacks hydrocarbon waxes: radicals pull H atoms from the chains, peroxides form, the matrix embrittles and adheres worse to steel. Heat and light speed this up. The hindered phenolic antioxidant interrupts this chain reaction at the root.',
     physicsDe: [
       'Die letzte Frage war Zeit. Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation: Sauerstoffradikale greifen C–H-Bindungen an und initiieren eine Kettenreaktion, die Peroxide, Alkohole und Ketone produziert. Diese Oxidationsprodukte verspröden die Matrix und verschlechtern ihre Haftung auf Metall.',
-      'Gleichzeitig greift Sauerstoff die MoS₂-Partikel an: O₂ substituiert Schwefel an den Partikeloberflächen und bildet MoO₃. Damit steigt die Scherfestigkeit der Gleitfläche: die Schichten gleiten nicht mehr so leicht übereinander ab, der Reibwert steigt. In feuchter Luft verläuft diese Oxidation mehrfach schneller, da Wasser die Mo–S-Bindungen destabilisiert und flüchtige MoO₂(OH)₂-Spezies bilden kann.',
       'Ein gehindertes Phenol-Antioxidans wirkt als Radikalkettenabbrecher: Die phenolische OH-Gruppe doniert ein Wasserstoffatom an Peroxylradikale (ROO•) und überführt sie in stabile Hydroperoxide (ROOH). Das resultierende Phenoxyradikal ist durch Elektronendelokalisierung und die sperrigen tert-Butylgruppen (sterische Hinderung) stabilisiert — es kann keine neue Kettenreaktion starten.',
-      'Damit schützt eine einzige Komponente zwei Systeme: die Wachsmatrix vor Versprödung und den MoS₂-Festschmierstoff vor Umwandlung in sein abrasives Oxid. Die Konzentration wurde leicht erhöht, als ein separater Korrosionsinhibitor aus einer früheren Formulierungsversion entfernt wurde.',
+      'Die Konzentration wurde leicht erhöht, als ein separater Korrosionsinhibitor aus einer früheren Formulierungsversion entfernt wurde.',
     ],
     physicsEn: [
       'The last question was time. A wax block that performs in week 1 but degrades by month 6 isn\'t a product. Hydrocarbon waxes are susceptible to autoxidation: oxygen radicals attack C–H bonds, initiating a chain reaction producing peroxides, alcohols, and ketones. These oxidation products embrittle the matrix and degrade its adhesion to metal.',
-      'Simultaneously, oxygen attacks MoS₂ particles: O₂ substitutes sulfur at particle surfaces and forms MoO₃. This raises the shear strength of the sliding interface: the layers no longer glide over one another as easily, and friction rises. In humid air this oxidation proceeds several times faster, as water destabilises Mo–S bonds and can form volatile MoO₂(OH)₂ species.',
       'A hindered phenolic antioxidant acts as a radical chain-breaker: the phenolic OH group donates a hydrogen atom to peroxyl radicals (ROO•), converting them to stable hydroperoxides (ROOH). The resulting phenoxy radical is stabilised by electron delocalisation and the bulky tert-butyl groups (steric hindrance) — it cannot start a new chain reaction.',
-      'Thus a single component protects two systems: the wax matrix from embrittlement and the MoS₂ solid lubricant from conversion to its abrasive oxide. Concentration was raised slightly when a separate corrosion inhibitor was removed from an earlier formula version.',
+      'Concentration was raised slightly when a separate corrosion inhibitor was removed from an earlier formula version.',
     ],
-    insightDe: 'Das Antioxidans schützt nicht nur das Wachs, sondern auch den Festschmierstoff. Eine Komponente, die zwei Versagensmodi gleichzeitig verhindert — Matrixversprödung und MoS₂ → MoO₃-Degradation.',
-    insightEn: 'The antioxidant protects not just the wax, but also the solid lubricant. One component preventing two failure modes — matrix embrittlement and MoS₂ → MoO₃ degradation.',
+    insightDe: 'Das Antioxidans wird verbraucht, damit das Wachs es nicht wird: jedes abgefangene Radikal ist eine Wachskette, die ganz bleibt.',
+    insightEn: 'The antioxidant gets used up so the wax does not: every radical it traps is a wax chain that stays intact.',
     diagram: 'radical',
   },
 ];
@@ -206,7 +207,6 @@ export const EDGES: ScienceEdge[] = [
   { from: 1, to: 4, labelDe: 'Trägermatrix',         labelEn: 'carrier matrix',   dash: false, main: true  },
   { from: 3, to: 4, labelDe: 'Einbettung',           labelEn: 'embedding',        dash: false, main: false },
   { from: 5, to: 4, labelDe: 'Sterische Hülle',     labelEn: 'steric shell',     dash: true,  main: false },
-  { from: 6, to: 4, labelDe: 'Oxidationsschutz',    labelEn: 'oxidation guard',  dash: true,  main: false },
   { from: 2, to: 4, labelDe: 'Thermostabilität',    labelEn: 'thermal stability', dash: false, main: false },
   { from: 6, to: 1, labelDe: 'Matrixschutz',        labelEn: 'matrix guard',     dash: true,  main: false },
   // 2026-09 addition — both stated in the existing physics copy, both
@@ -263,8 +263,8 @@ export const FORMULA_STORY: FormulaStep[] = [
   },
   {
     node: 6,
-    captionDe: 'Ein gehindertes Phenol doniert H-Atome an Peroxylradikale (ROO•) und bricht die Oxidationskaskade. Doppelter Schutz: verhindert MoS₂ → MoO₃-Umwandlung (Mo⁴⁺ → Mo⁶⁺) und schützt die Wachsmatrix selbst vor Autooxidation und Versprödung.',
-    captionEn: 'A hindered phenol donates H atoms to peroxyl radicals (ROO•), breaking the oxidation cascade. Dual protection: prevents MoS₂ → MoO₃ conversion (Mo⁴⁺ → Mo⁶⁺) and shields the wax matrix itself from autooxidation and embrittlement.',
+    captionDe: 'Ein gehindertes Phenol doniert H-Atome an Peroxylradikale (ROO•) und bricht die Oxidationskaskade. So schützt es die Wachsmatrix vor Autooxidation und Versprödung.',
+    captionEn: 'A hindered phenol donates H atoms to peroxyl radicals (ROO•), breaking the oxidation cascade. That shields the wax matrix from autooxidation and embrittlement.',
   },
 ];
 export const STORY_DONE = {
@@ -361,4 +361,90 @@ export const CLASSIC_EXTRA: ScienceComponent[] = [
     insightEn: 'The same adhesion mechanism is in the Pro formula too — in Classic it carries the PTFE film, in Pro the MoS₂ transfer film.',
     diagram: 'stearin',
   },
+];
+
+// ─── Die Formel-Reise (Wissenschaftsseite, src/sections/science/journey) ─────
+// Eine Kamerafahrt von der Kette am Kettenblatt bis in den Film im Gelenk
+// und zurueck. Pro Takt ein, zwei Saetze; die Tiefe steht in COMPONENTS.
+// Der letzte Takt (Ergebnis) wird in Journey.tsx aus waxVsOil gebaut, damit
+// die Zahlen nur an einer Stelle stehen.
+//
+// Fachlich geprueft 26.09.2026: 9° = 360°/40 Zaehne. Buchsenlos: der Kragen
+// der Innenlasche ist die Buchse. Paraffin erstarrt in Plaettchen,
+// Mikrowachs in feinen Nadeln. Stokes ~1 mm/min (siehe sedimentation). Keine
+// mu-Zahl: MoS2 liegt in feuchter Luft bei 0,1–0,2, eine Kette faehrt nie in
+// trockener.
+export interface JourneyBeat { act: number; eyebrowDe: string; eyebrowEn: string; titleDe: string; titleEn: string; bodyDe: string; bodyEn: string }
+export const JOURNEY_ACTS = [
+  { de: 'Die Kette', en: 'The chain' },
+  { de: 'Das Gelenk', en: 'The joint' },
+  { de: 'Der Spalt', en: 'The gap' },
+  { de: 'Der Film', en: 'The film' },
+  { de: 'Zurück', en: 'Back out' },
+];
+export const JOURNEY_BEATS: JourneyBeat[] = [
+  { act: 0, eyebrowDe: 'Maßstab ~10 cm', eyebrowEn: 'Scale ~10 cm',
+    titleDe: 'Wo die Kette arbeitet.', titleEn: 'Where the chain works.',
+    bodyDe: 'Oben läuft die Kette unter Zug aufs Kettenblatt. Diese Seite trägt deine ganze Tretkraft.',
+    bodyEn: 'Up top the chain runs onto the chainring under tension. This side carries all of your pedalling force.' },
+  { act: 0, eyebrowDe: 'Maßstab ~5 cm', eyebrowEn: 'Scale ~5 cm',
+    titleDe: 'Jedes Glied knickt ein.', titleEn: 'Every link hinges.',
+    bodyDe: 'Beim Auflaufen dreht sich jedes Gelenk um 9°, bei 40 Zähnen. Genau dann gleitet Stahl auf Stahl, unter voller Last. Am Kettenblatt, am Ritzel und an den Schaltröllchen, in jeder Runde.',
+    bodyEn: 'As it runs on, every joint turns by 9° on a 40-tooth ring. That is when steel slides on steel, under full load. At the chainring, the cog and the jockey wheels, every lap.' },
+  { act: 1, eyebrowDe: 'Maßstab ~1 cm', eyebrowEn: 'Scale ~1 cm',
+    titleDe: 'Ein Gelenk, durchleuchtet.', titleEn: 'One joint, x-rayed.',
+    bodyDe: 'Unter den Laschen stecken drei Teile ineinander: Bolzen, Kragen der Innenlasche und Rolle. Moderne 9- bis 12-fach-Ketten haben keine eigene Buchse mehr, der Kragen übernimmt ihre Aufgabe.',
+    bodyEn: 'Under the plates three parts nest inside each other: pin, the inner plate’s collar and the roller. Modern 9 to 12-speed chains have no separate bushing, the collar does its job.' },
+  { act: 1, eyebrowDe: 'Reibstelle 01', eyebrowEn: 'Friction point 01',
+    titleDe: 'Bolzen gegen Kragen.', titleEn: 'Pin against collar.',
+    bodyDe: 'Hier liegt die ganze Zugkraft an. Der Bolzen drückt einseitig gegen den Kragen und dreht sich bei jedem Einknicken darin. Kein Film muss mehr aushalten als dieser.',
+    bodyEn: 'All of the tension sits here. The pin presses against one side of the collar and turns inside it at every hinge. No film has to take more than this one.' },
+  { act: 1, eyebrowDe: 'Reibstelle 02', eyebrowEn: 'Friction point 02',
+    titleDe: 'Rolle gegen Kragen.', titleEn: 'Roller against collar.',
+    bodyDe: 'Die Rolle dreht sich, wenn sie auf einen Zahn trifft. Sie liegt ganz außen, hier kommt Schmutz zuerst an.',
+    bodyEn: 'The roller turns when it meets a tooth. It sits furthest out, so this is where dirt arrives first.' },
+  { act: 1, eyebrowDe: 'Reibstelle 03', eyebrowEn: 'Friction point 03',
+    titleDe: 'Lasche gegen Lasche.', titleEn: 'Plate against plate.',
+    bodyDe: 'Innen- und Außenlasche liegen flach aufeinander. Läuft die Kette schräg, schleifen sie seitlich aneinander.',
+    bodyEn: 'Inner and outer plates lie flat on each other. When the chain runs at an angle, they rub sideways.' },
+  { act: 2, eyebrowDe: 'Tausendfach näher', eyebrowEn: 'A thousand times closer',
+    titleDe: 'Hinein in Reibstelle 01.', titleEn: 'Into friction point 01.',
+    bodyDe: 'An der Druckseite trennen Bolzen und Kragen nur wenige Mikrometer. Was in diesem Spalt sitzt, entscheidet über den Verschleiß.',
+    bodyEn: 'On the loaded side, pin and collar are only a few micrometres apart. Whatever sits in this gap decides the wear.' },
+  { act: 2, eyebrowDe: 'Maßstab ~100 µm · mit Öl', eyebrowEn: 'Scale ~100 µm · with oil',
+    titleDe: 'Öl bleibt flüssig.', titleEn: 'Oil stays liquid.',
+    bodyDe: 'Öl ist klebrig und fließt. Staub bleibt daran hängen und wird mit in den Spalt gezogen. Dort wirkt er wie Schleifpaste: er zerkratzt die Stahlflächen, und die Kette längt sich.',
+    bodyEn: 'Oil is tacky and flows. Dust sticks to it and gets pulled into the gap. There it works like grinding paste: it scratches the steel and the chain stretches.' },
+  { act: 2, eyebrowDe: 'Maßstab ~100 µm · mit Wachs', eyebrowEn: 'Scale ~100 µm · with wax',
+    titleDe: 'Wachs wird fest.', titleEn: 'Wax turns solid.',
+    bodyDe: 'Heißwachs füllt den Spalt und erstarrt. Ein fester, trockener Film bindet keinen Staub, es entsteht keine Paste. Deshalb hält eine gewachste Kette deutlich länger, oft 2 bis 3×.',
+    bodyEn: 'Hot wax fills the gap and solidifies. A firm, dry film holds no dust, so no paste forms. That is why a waxed chain lasts much longer, often 2 to 3×.' },
+  { act: 3, eyebrowDe: 'Maßstab ~10 µm · Paraffin', eyebrowEn: 'Scale ~10 µm · paraffin',
+    titleDe: 'So erstarrt der Film.', titleEn: 'How the film sets.',
+    bodyDe: 'Beim Abkühlen wachsen in der Schmelze feine Paraffin-Plättchen und verkeilen sich ineinander. Dieses Gerüst trägt alles, was noch kommt.',
+    bodyEn: 'As it cools, fine paraffin platelets grow in the melt and lock into each other. This scaffold carries everything that follows.' },
+  { act: 3, eyebrowDe: 'Problem: Last · MoS₂', eyebrowEn: 'Problem: load · MoS₂',
+    titleDe: 'Gegen den Druck.', titleEn: 'Against the pressure.',
+    bodyDe: 'Unter voller Last wird Wachs an den Rauheitsspitzen weggedrückt, dort kommen sich die Stahlflächen am nächsten. MoS₂-Plättchen legen sich flach an den Stahl, ihre Schichten gleiten aufeinander und füllen die Täler der Oberfläche.',
+    bodyEn: 'Under full load wax is pushed away at the roughness peaks, where the steel surfaces come closest. MoS₂ platelets lie flat on the steel, their layers glide over each other and fill the valleys of the surface.' },
+  { act: 3, eyebrowDe: 'Problem: Hitze · FT-Wachs', eyebrowEn: 'Problem: heat · FT wax',
+    titleDe: 'Gegen den Sommer.', titleEn: 'Against summer.',
+    bodyDe: 'Paraffin wird schon unter 58 °C weich, in praller Sonne könnte der Film wandern. Fischer-Tropsch-Wachs kristallisiert mit dem Paraffin zusammen und hält das Gerüst bis ~75 °C in Form.',
+    bodyEn: 'Paraffin softens below 58 °C, and in full sun the film could migrate. Fischer–Tropsch wax crystallises together with the paraffin and holds the scaffold in shape up to ~75 °C.' },
+  { act: 3, eyebrowDe: 'Problem: Kälte · Mikrowachs', eyebrowEn: 'Problem: cold · microcrystalline',
+    titleDe: 'Gegen den Frost.', titleEn: 'Against frost.',
+    bodyDe: 'Bei Frost werden reine Paraffin-Plättchen spröde, beim Biegen reißt der Film an ihren Grenzen. Mikrokristallines Wachs bildet feine, verzweigte Kristalle dazwischen und hält ihn bis −8 °C biegsam.',
+    bodyEn: 'In frost pure paraffin platelets turn brittle and the film cracks along their edges when it flexes. Microcrystalline wax forms fine, branched crystals in between and keeps it flexible down to −8 °C.' },
+  { act: 3, eyebrowDe: 'Problem: beim Gießen · Dispergiersystem', eyebrowEn: 'Problem: casting · dispersant',
+    titleDe: 'Gegen das Absinken.', titleEn: 'Against settling.',
+    bodyDe: 'MoS₂ ist 5,6× dichter als Wachs und sinkt in der Schmelze rund 1 mm pro Minute. Eine Esterhülle um jedes Partikel hält es in der Schwebe. So enthält der letzte Block einer Charge so viel wie der erste.',
+    bodyEn: 'MoS₂ is 5.6× denser than wax and sinks about 1 mm per minute in the melt. An ester shell around each particle keeps it suspended, so the last block of a batch holds as much as the first.' },
+  { act: 3, eyebrowDe: 'Problem: Zeit · Antioxidans', eyebrowEn: 'Problem: time · antioxidant',
+    titleDe: 'Gegen das Altern.', titleEn: 'Against ageing.',
+    bodyDe: 'Sauerstoff bildet Radikale, die Wachsketten angreifen und den Film spröde machen. Ein gehindertes Phenol gibt sein H zuerst ab und stoppt die Kettenreaktion.',
+    bodyEn: 'Oxygen forms radicals that attack wax chains and make the film brittle. A hindered phenol gives up its H first and stops the chain reaction.' },
+  { act: 4, eyebrowDe: 'Zurück auf ~10 cm', eyebrowEn: 'Back to ~10 cm',
+    titleDe: 'Das alles steckt in jedem Glied.', titleEn: 'All of that sits in every link.',
+    bodyDe: 'Sechs Stoffe in einem Film von wenigen Mikrometern, in jedem Gelenk deiner Kette.',
+    bodyEn: 'Six substances in a film a few micrometres thin, in every joint of your chain.' },
 ];

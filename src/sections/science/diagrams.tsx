@@ -167,14 +167,14 @@ function Density({ de }: { de: boolean }) {
 function Radical({ de }: { de: boolean }) {
   return (
     <Fig vb="0 0 240 110" label="radical chain break"
-      cap={de ? 'Phenol-OH bricht die Oxidationskette → das MoS₂ bleibt MoS₂.' : 'Phenolic OH breaks the oxidation chain → the MoS₂ stays MoS₂.'}>
+      cap={de ? 'Phenol-OH bricht die Oxidationskette, die Wachskette bleibt ganz.' : 'Phenolic OH breaks the oxidation chain, the wax chain stays intact.'}>
       <path d="M86 70 Q120 26 154 70" stroke="var(--accent-soft)" strokeWidth="var(--dw-bold)" fill="none" strokeLinecap="round" />
       <path d="M120 40 L120 60" stroke="var(--accent-soft)" strokeWidth="var(--dw-line)" />
       <text className="num-data" fontSize={11} fill="var(--txm)" x={28} y={52}>ROO•</text>
       <line x1={56} y1={54} x2={80} y2={62} stroke="var(--txf)" strokeWidth="var(--dw-hair)" strokeDasharray="2 3" />
       <line x1={82} y1={50} x2={92} y2={66} stroke="var(--accent-soft)" strokeWidth="var(--dw-line)" />
-      <text className="num-data" fontSize={11} fill="var(--accent-soft)" x={170} y={50}>MoS₂ ✓</text>
-      <text className="num-data" fontSize={11} fill="var(--txf)" x={170} y={68}>MoO₃ ✗</text>
+      <text className="num-data" fontSize={11} fill="var(--accent-soft)" x={170} y={50}>ROOH ✓</text>
+      <text className="num-data" fontSize={11} fill="var(--txf)" x={170} y={68}>{de ? 'Kette ganz' : 'chain intact'}</text>
     </Fig>
   );
 }

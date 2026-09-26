@@ -1006,6 +1006,45 @@ Endgültig erledigt ist es mit eigenen Aufnahmen. Als offener Punkt in
 
 ---
 
+### Stufe 6 am 26.09.2026: die Formel-Reise ersetzt Film-Labor und „Wo es reibt"
+
+Lucas Befund zum Film-Labor: zu sehr Diashow. Beim Durchscrollen bestätigt: die
+Ringe am Anfang lasen sich nicht als Kette (der Fehler aus den Notes vom Juli),
+der Zoom endete in einem grauen Oval (CSS-Skalierung einer Verlaufsfläche),
+danach ein harter Schnitt auf einen 3D-Block, sechs Stationen mit gleichem
+Layout und am Ende wieder das Netz aller Kanten. „Wo es reibt“ stand direkt
+davor und zeigte dieselben Ringe.
+
+Neu: `src/sections/science/journey/` (Journey.tsx, scenes.tsx, geometry.ts,
+NanoScenes.tsx). Eine Welt in echten Maßen, eine Kamera, fünf Akte: Kette am
+Kettenblatt (40 Z, jedes Glied knickt um 9°) → Gelenk durchleuchtet, die drei
+Reibstellen nacheinander → Spalt an der Druckseite von Reibstelle 01, Öl mit
+Staub gegen festes Wachs → Film, jede Zutat als Antwort auf ein Problem (erst
+das Versagen, dann die Lösung, die Lupe zeigt dasselbe auf Molekülebene) →
+Rückfahrt zur Kette und die ZFC-Zahlen. Scroll wird geglättet (rAF mit
+Nachlauf), React rendert nur beim Taktwechsel, Zoom über die SVG-Matrix.
+`FrictionLens` bleibt auf den Produktseiten, `#problem` zeigt auf die Reise.
+
+**Fachlich korrigiert (recherchiert):**
+
+| Vorher | Jetzt | Grund |
+|---|---|---|
+| Film als Fächer aus einem Keim (Sphärolithe) | Paraffin als Plättchen, Mikrowachs als feine Nadeln | So kristallisieren Paraffin- und Mikrowachs tatsächlich |
+| `mos2.metric` „μ 0,03 trocken“ | „< 5 µm“ | 0,03 gilt in trockenem N₂/trockener Luft, feuchte Luft 0,1–0,2 |
+| Antioxidans schützt MoS₂ vor MoO₃ | nur Schutz der Wachsmatrix; Kante 6→4 und Diagrammbeschriftung raus | Phenol fängt Radikale im Wachs, MoS₂-Oxidation läuft über Feuchte |
+| „45–55 °C an Kontaktpunkten“ | Erweichen unter dem Schmelzpunkt, Sonne/Auto, Tropfpunkt ~75 °C | keine Quelle für die Kontakttemperatur |
+| FT-Lupe: Paraffin „wird unruhig“ ab 60 °C | Paraffinanteil schmilzt ab ~58 °C, FT-Gerüst hält | Schmelzbereich 58–60 °C |
+
+Quellen: MoS₂ in verschiedenen Umgebungen (MDPI Lubricants 4/3/32, MDPI
+Coatings 15/5/500), MoS₂-Oxidation in Luft und Feuchte (Materials 13/14/3067),
+Kristallformen von Paraffin/Mikrowachs (US 7875166, IntechOpen „Petroleum
+Paraffins“), Gelenkreibung (ZFC „Friction-Producing Mechanisms“, Mechanics &
+Industry 2022 mi220045).
+
+**Weiter offen, nicht angefasst:** „−8 °C“ (siehe §8.6), Fe–S-Tribochemie und
+„2–5 nm Transferfilm“ in `mos2.whyDe`/`physicsDe` (plausibel, dünn belegt),
+die Filmdicke „wenige µm“ ist eine Größenordnung.
+
 ## 8. Was nur Luca entscheiden kann
 
 1. **Die µ-Werte.** Bleiben sie mit Umgebungsangabe im MoS₂-Kapitel, oder

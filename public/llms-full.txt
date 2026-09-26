@@ -181,9 +181,9 @@ Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, unabhängig 
 - Paraffin: Vollraffiniertes Paraffin bildet den Grundfilm — lineare Alkanketten (C₂₀–C₃₆) packen sich orthorhombisch zu rund 4 bis 5 nm dünnen Lamellen, die mehr Metall bedecken und weniger Wasser durchlassen als Standardwachse.
 - Fischer-Tropsch-Wachs: Synthetisches Hartwachs (>90 % Kristallinität) hebt den Tropfpunkt auf ~75 °C — die Matrix hält Position unter Last statt wegzuwandern und stabilisiert die MoS₂-Einbettung thermisch.
 - Mikrokristallines Wachs: Verzweigte und zyklische Naphthene füllen die amorphen Zonen zwischen den Paraffinlamellen — die Matrix bleibt bei Frost elastisch bis −8 °C, kein Verspröden, kein Abplatzen.
-- Molybdändisulfid (MoS₂): Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03 in trockener Luft.
+- Molybdändisulfid (MoS₂): Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03 in trockener Luft, in feuchter Luft liegt der Wert höher.
 - Dispergiersystem: MoS₂ ist 5,6× dichter als Wachs — nach Stokes sedimentieren 5 µm Partikel rund 1 mm/min in der Schmelze. Amphiphile Ester adsorbieren an den Partikelkanten und erzeugen eine sterische Barriere, die homogene Verteilung sichert.
-- Phenolisches Antioxidans: Doniert H-Atome an Peroxylradikale und bricht die Oxidationskaskade. Doppelter Schutz: verhindert MoS₂ → MoO₃-Umwandlung und schützt die Wachsmatrix vor Versprödung — 12 Monate stabile Lagerung.
+- Phenolisches Antioxidans: Doniert H-Atome an Peroxylradikale und bricht die Oxidationskaskade, bevor sie die Wachsmatrix versprödet. Das hält den Block 12 Monate stabil.
 
 ---
 

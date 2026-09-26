@@ -12,10 +12,8 @@ import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { waxVsOil, products, type Product } from '@/lib/data';
 import { COMPONENTS, EDGES, FAILURES, FORMULA_STORY } from '@/lib/science';
-import { type FieldKey } from '@/sections/science/WaxField';
-import { FilmLab } from '@/sections/science/lab/FilmLab';
+import { Journey } from '@/sections/science/journey/Journey';
 import { LineChoice } from '@/sections/science/ContactZones';
-import { FrictionLens } from '@/pages/product/wax/FrictionLens';
 import '@/pages/product/wax/wax.css';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { CassetteLens } from '@/sections/science/CassetteLens';
@@ -478,14 +476,14 @@ function ActHead({ eyebrow, title, lede }: { eyebrow: string; title: string; led
 
 // ─── ACT II — Die Formel ───────────────────────────────────────────────────
 //
-// Die Inszenierung laeuft im Film-Labor (src/sections/science/lab/FilmLab):
-// Gelenk, Kamerafahrt, Erstarrung, sechs Stoffe im Mikroskop, das Netz.
+// Die Inszenierung laeuft in der Formel-Reise (src/sections/science/journey):
+// Kette, Gelenk, Spalt, Film, jede Zutat als Antwort auf ein Problem.
 // Dort stehen pro Station nur ein, zwei Saetze. Wer tiefer will, findet hier
 // darunter jede Komponente mit Begruendung, Physik und Diagramm — eine
 // ruhige Liste, keine zweite Inszenierung.
 
 const FIELD_KEYS = ['kristallstruktur', 'matrix', 'winterformel', 'mos2', 'sedimentation', 'antioxidans'] as const;
-const isFieldKey = (id: string): id is FieldKey => (FIELD_KEYS as readonly string[]).includes(id);
+const isFieldKey = (id: string) => (FIELD_KEYS as readonly string[]).includes(id);
 
 /** Alle Kanten, die diese Komponente beruehren, in beide Richtungen. */
 function meshFor(node: number, de: boolean) {
@@ -649,30 +647,23 @@ export function SciencePage() {
           eigenen Aufnahmen, siehe PROJECT.md. */}
       <ScienceHero de={de} />
 
-      {/* ── ACT I — THE PROBLEM ──
-          Owns the #problem anchor that the hero's "Wie das gemessen wurde" link
-          has always pointed at. Establishes where friction physically happens
-          before ACT II explains what is in the wax, so the formula reads as an
-          answer to something rather than an ingredient list. */}
-      {/* 25.09.2026: dasselbe Instrument wie auf der Produktseite (Seiten-
-          ansicht, Lupe im Gelenk, Oel/Wachs-Schalter) statt der aelteren
-          ContactZones-Zeichnung mit drei Ansichten. Die Kassette steht schon
-          im Hero, deshalb hier ohne. */}
-      <div id="problem" className="wxp scroll-mt-16">
-        <FrictionLens de={de} eyebrow={de ? 'Wo es reibt' : 'Where it rubs'} cassette={false} />
-      </div>
-
-      {/* ── ACT II — FORMULA: das Film-Labor (dunkel, randlos), darunter die
-          Stoffe im Detail und die Entwicklungsgeschichte ── */}
+      {/* ── DIE REISE ──
+          26.09.2026: "Wo es reibt" (FrictionLens) und das Film-Labor waren
+          zwei Sektionen mit denselben Ringen hintereinander. Jetzt eine
+          Kamerafahrt: Kette → Gelenk mit den drei Reibstellen → Spalt (Oel
+          gegen Wachs) → Film, jede Zutat als Antwort auf ein Problem →
+          zurueck. #problem und #formel zeigen beide hierher, damit alte
+          Links weiter landen. Die Produktseiten behalten FrictionLens. */}
       <section id="formel" className="lab-section pdp-dark scroll-mt-16">
+        <span id="problem" className="block scroll-mt-16" aria-hidden />
         <div className={`${W} lab-head`}>
-          <p className="eyebrow">{de ? 'Die Formel' : 'The Formula'}</p>
-          <h2>{de ? 'Sechs Komponenten, ein System.' : 'Six components, one system.'}</h2>
+          <p className="eyebrow">{de ? 'Wo es reibt und was dagegen hilft' : 'Where it rubs and what helps'}</p>
+          <h2>{de ? 'Von der Kette bis zum Molekül.' : 'From the chain to the molecule.'}</h2>
           <p className="lede">{de
-            ? 'Scroll dich vom Kettengelenk bis zum Molekül. Jede Zutat löst ein konkretes Versagensszenario, und du kannst jede einzeln herausnehmen.'
-            : 'Scroll from the chain joint down to the molecule. Each ingredient solves a specific failure mode, and you can take each one out.'}</p>
+            ? 'Scroll dich hinein: vom Kettenblatt in ein Gelenk, in den Spalt mit der höchsten Last und in den Film, der dort arbeitet. Jede Zutat taucht genau da auf, wo sie ein Problem löst.'
+            : 'Scroll in: from the chainring into a joint, into the gap under the highest load and into the film that works there. Each ingredient shows up exactly where it solves a problem.'}</p>
         </div>
-        <FilmLab de={de} onDetails={() => document.getElementById('stoffe')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
+        <Journey de={de} onBeweis={() => document.getElementById('beweis')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
       </section>
 
       <section id="stoffe" className={`${W} pt-20 pb-16 scroll-mt-24`}>

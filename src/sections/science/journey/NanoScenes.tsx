@@ -13,8 +13,9 @@
 //             Last auf der Basalebene gleiten. Abgescherte Flocken lagern sich
 //             in die Taeler der Stahlrauheit: so entsteht der Transferfilm.
 //             Ohne: die Rauheitsspitzen reiben direkt, Abrieb entsteht.
-//  FT-Wachs   Waermetest im Molekuelgitter: kurze Paraffinketten werden ab
-//             ~60 °C unruhig, die langen FT-Ketten halten das Gitter bis ~75 °C.
+//  FT-Wachs   Waermetest im Molekuelgitter: ab ~58 °C schmilzt der
+//             Paraffinanteil, die langen FT-Ketten bleiben kristallin und
+//             halten das Geruest bis ~75 °C.
 //  Mikro      Zwischen zwei Lamellenstapeln fuellen verzweigte und zyklische
 //             Molekuele die amorphe Zone. Unter Biegung bei −8 °C schert sie.
 //             Ohne: die Grenze reisst auf.
@@ -28,7 +29,7 @@
 // Farben folgen der CPK-Konvention der Chemie, wo es um Atome geht (S gelb,
 // O rot, H weiss), Blau bleibt Wachs, das Radikal ist warm.
 
-import type { FieldKey } from '../WaxField';
+export type NanoKey = 'kristallstruktur' | 'matrix' | 'winterformel' | 'mos2' | 'sedimentation' | 'antioxidans' | 'block';
 
 export interface NanoScene { art: React.ReactNode; cap: string }
 type Render = (t: number, de: boolean, without: boolean) => NanoScene;
@@ -213,8 +214,8 @@ const ftWax: Render = (t, de, without) => {
       </>
     ),
     cap: without
-      ? (de ? `${Math.round(T)} °C · ohne FT-Wachs verliert das Gitter ab ~60 °C seinen Halt: die Matrix wird weich und wandert.` : `${Math.round(T)} °C · without FT wax the lattice loses its hold from ~60 °C: the matrix softens and migrates.`)
-      : (de ? `${Math.round(T)} °C · die kurzen Paraffinketten werden ab ~60 °C unruhig, die langen FT-Ketten (hell) halten das Gitter bis ~75 °C.` : `${Math.round(T)} °C · the short paraffin chains stir from ~60 °C, the long FT chains (light) hold the lattice up to ~75 °C.`),
+      ? (de ? `${Math.round(T)} °C · ohne FT-Wachs gibt es oberhalb von ~58 °C kein Gerüst mehr: der Film wird weich und wandert.` : `${Math.round(T)} °C · without FT wax there is no scaffold above ~58 °C: the film softens and migrates.`)
+      : (de ? `${Math.round(T)} °C · ab ~58 °C schmilzt der Paraffinanteil. Die langen FT-Ketten (hell) bleiben kristallin und halten das Gerüst bis ~75 °C.` : `${Math.round(T)} °C · from ~58 °C the paraffin fraction melts. The long FT chains (light) stay crystalline and hold the scaffold up to ~75 °C.`),
   };
 };
 
@@ -386,11 +387,42 @@ const antiox: Render = (t, de, without) => {
   };
 };
 
-export const NANO: Record<FieldKey, { still: number; render: Render }> = {
+// ── Giessform: Sedimentation im Block (Massstab mm, nicht nm) ───────────────
+// Stokes: 5 µm MoS2, Dichteunterschied ~4,2 g/cm³, Schmelze ~3,5 mPa·s bei
+// 65 °C → rund 1 mm/min. Ohne Huelle sammeln sich die Partikel unten, bevor
+// der Block erstarrt ist.
+const block: Render = (t, de, without) => {
+  const u = (t % 8) / 8;
+  const fall = without ? smooth(0.05, 0.8, u) : 0;
+  const r = (i: number) => hash(i * 13.7);
+  const dots: React.ReactNode[] = [];
+  for (let i = 0; i < 70; i++) {
+    const x = 58 + r(i) * 124;
+    const y0 = 62 + r(i + 100) * 118;
+    const y = lerp(y0, 176 - r(i + 200) * 10, fall) + (without ? 0 : Math.sin(t * 1.3 + i) * 1.2);
+    dots.push(<circle key={i} cx={x + (without ? 0 : Math.cos(t * 1.1 + i) * 1.2)} cy={y} r={2.1} fill={MO_ATOM} />);
+  }
+  return {
+    art: (
+      <>
+        <rect x="46" y="52" width="148" height="134" rx="4" fill="rgba(61,103,202,0.16)" stroke="rgba(255,255,255,0.55)" strokeWidth="1.4" />
+        <path d="M46 52 L46 190 L194 190 L194 52" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2.4" />
+        {dots}
+        {without && <path d="M206 80 L206 150 M200 142 L206 151 L212 142" stroke="rgba(255,255,255,0.45)" strokeWidth="1.6" fill="none" />}
+      </>
+    ),
+    cap: de
+      ? 'In der Schmelze sinkt MoS₂ rund 1 mm pro Minute. Ohne Hülle wäre der Boden eines Blocks überladen und oben fehlte es.'
+      : 'In the melt MoS₂ sinks about 1 mm per minute. Without a shell the bottom of a block would be overloaded and the top short.',
+  };
+};
+
+export const NANO: Record<NanoKey, { still: number; render: Render }> = {
   kristallstruktur: { still: 7, render: paraffin },
   mos2: { still: 9, render: mos2 },
   matrix: { still: 6, render: ftWax },
   winterformel: { still: 3, render: micro },
   sedimentation: { still: 4, render: dispersant },
   antioxidans: { still: 5.2, render: antiox },
+  block: { still: 6.5, render: block },
 };
