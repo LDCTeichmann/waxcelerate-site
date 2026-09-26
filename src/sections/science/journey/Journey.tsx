@@ -184,8 +184,9 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
   const scaleBar = useRef<HTMLDivElement>(null);
   const ruler = useRef<HTMLDivElement>(null);
   const thermo = useRef<HTMLDivElement>(null);
-  const cache = useRef<{ vars: Record<string, string>; alpha: number; dims: { W: number; H: number; mobile: boolean } | null; scale: string; therm: string; scope: ScopeCfg | null; b: number }>(
-    { vars: {}, alpha: NaN, dims: null, scale: '', therm: '', scope: null, b: 0 });
+  const mag = useRef<HTMLDivElement>(null);
+  const cache = useRef<{ vars: Record<string, string>; alpha: number; dims: { W: number; H: number; mobile: boolean } | null; scale: string; therm: string; mag: string; scope: ScopeCfg | null; b: number }>(
+    { vars: {}, alpha: NaN, dims: null, scale: '', therm: '', mag: '', scope: null, b: 0 });
 
   const measure = useCallback(() => {
     const el = view.current; if (!el) return;
@@ -202,8 +203,12 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
       const d = c.dims; if (!st || !s || !d) return;
       const cam = camAt(b);
       // Bildausschnitt: w passt in die Breite, Hoehe mit Reserve
-      const S = Math.min(d.W / cam.w, d.H / (cam.w * 0.62));
-      const ax = d.mobile ? 0.5 : lerp(0.5, 0.36, cam.film), ay = d.mobile ? lerp(0.5, 0.36, cam.film) : 0.5;
+      // Desktop: die Buehne ist vollflaechig, links liegt der Text ueber einem
+      // Verlauf. Das Motiv bekommt deshalb nur ~62 % der Breite und sitzt
+      // rechts davon; im Film-Massstab rueckt es zur Mitte, weil rechts die Lupe steht.
+      const usable = d.mobile ? d.W : d.W * 0.62;
+      const S = Math.min(usable / cam.w, d.H / (cam.w * 0.62));
+      const ax = d.mobile ? 0.5 : lerp(0.64, 0.5, cam.film), ay = d.mobile ? lerp(0.5, 0.36, cam.film) : 0.53;
       const th = (cam.rot * Math.PI) / 180, co = Math.cos(th) * S, si = Math.sin(th) * S;
       const W: M = [co, si, -si, co, 0, 0];
       W[4] = ax * d.W - (W[0] * cam.fx + W[2] * cam.fy);
@@ -229,7 +234,8 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
       if (op.chain > 0.001 && alpha !== c.alpha) {
         c.alpha = alpha;
         const pins = pinsAt(alpha);
-        s.querySelector('[data-ring]')?.setAttribute('transform', `rotate(${((alpha * 180) / Math.PI).toFixed(3)})`);
+        const rot = `rotate(${((alpha * 180) / Math.PI).toFixed(3)})`;
+        s.querySelectorAll('[data-ring], [data-ring-clip]').forEach(el => el.setAttribute('transform', rot));
         const inner = s.querySelectorAll<SVGGElement>('[data-inner] > g'), outer = s.querySelectorAll<SVGGElement>('[data-outer] > g');
         for (let i = 0; i < LINK_SLOTS; i++) {
           const p = pins[i], q = pins[i + 1];
@@ -289,8 +295,8 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
         thermo.current.dataset.cold = T < 10 ? '1' : '';
       }
 
-      // Massstab: Balken und Lineal
-      const fov = d.W / S;
+      // Massstab: Balken, Lineal, Vergroesserung
+      const fov = usable / S;
       const { L, label } = niceScale(fov * 0.16);
       if (scaleBar.current) {
         const px = (L * S).toFixed(1);
@@ -299,6 +305,12 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
           (scaleBar.current.firstElementChild as HTMLElement).style.width = `${px}px`;
           scaleBar.current.lastElementChild!.textContent = label;
         }
+      }
+      if (mag.current) {
+        const m = BEATS[0].cam.w / cam.w;
+        const r = m < 1.5 ? 1 : +m.toPrecision(2);
+        const txt = `×${r.toLocaleString(de ? 'de-DE' : 'en-US')}`;
+        if (c.mag !== txt) { c.mag = txt; mag.current.firstElementChild!.textContent = txt; }
       }
       if (ruler.current) {
         const pos = clamp01((Math.log10(RULER_MM[0]) - Math.log10(fov)) / (Math.log10(RULER_MM[0]) - Math.log10(RULER_MM[1])));
@@ -326,7 +338,7 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
         sEl.style.visibility = vis < 0.01 ? 'hidden' : 'visible';
       }
     },
-  }), [measure]);
+  }), [measure, de]);
 
   useImperativeHandle(handle, () => ({ render: api.render, measure }), [api, measure]);
   // Neue Lupe: Kegel und Deckkraft sofort fuer die aktuelle Position nachziehen.
@@ -348,6 +360,7 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
         </div>
         <div ref={thermo} className="jr-thermo" style={{ opacity: 0 }} aria-hidden><span>20 °C</span></div>
         <div ref={scaleBar} className="jr-scalebar" aria-hidden><span /><b /></div>
+        <div ref={mag} className="jr-mag" aria-hidden><b>×1</b><span>{de ? 'Vergrößerung' : 'Magnification'}</span></div>
         <div ref={ruler} className="jr-ruler" aria-hidden>
           {RULER_LABELS.map((l, i) => <span key={l} style={{ top: `${(i / (RULER_LABELS.length - 1)) * 92}%` }}>{l}</span>)}
           <i />

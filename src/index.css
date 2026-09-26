@@ -1650,80 +1650,90 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
 .lab-head h2 { color: #fff; font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.03; letter-spacing: -0.02em; margin-top: 10px; }
 .lab-head p.lede { margin-top: 14px; max-width: 58ch; color: rgba(255,255,255,.66); font-size: 16px; line-height: 1.6; }
 .jr-track { position: relative; }
-.jr-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; display: grid; grid-template-columns: minmax(290px, 370px) minmax(0, 1fr); column-gap: clamp(20px, 3vw, 48px);
-  padding: 84px max(4vw, calc((100vw - 1320px) / 2)) 28px; }
-.jr-text { position: relative; align-self: stretch; }
+/* Vollflaechige Buehne. Der Text liegt links ueber einem Verlauf, das Motiv
+   rechts davon (Journey.tsx rechnet mit 62 % nutzbarer Breite). */
+.jr-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; isolation: isolate;
+  background: radial-gradient(ellipse 60% 55% at 70% 38%, rgba(70,110,170,.16), rgba(70,110,170,0) 70%), radial-gradient(ellipse 120% 90% at 60% 50%, #10141B 0%, #07090C 100%); }
+.jr-stage::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, rgba(7,9,12,.94) 0%, rgba(7,9,12,.82) calc(max(4vw, (100vw - 1320px) / 2) + 300px), rgba(7,9,12,0) calc(max(4vw, (100vw - 1320px) / 2) + 560px)); }
+.jr-stage::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 85% 80% at 60% 52%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); }
+/* Filmkorn: statisch, einmal gerastert, nur als Hauch ueber dem Bild */
+.jr-view::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>") 0 0 / 180px 180px; }
+.jr-text { position: absolute; z-index: 3; top: 72px; bottom: 0; left: max(4vw, calc((100vw - 1320px) / 2)); width: min(420px, 34vw); }
 .jr-beat { position: absolute; left: 0; right: 0; top: 50%; translate: 0 -50%; will-change: opacity, transform; }
-.jr-eyebrow { font: 600 11px/1.4 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: #7AA0CE; }
-.jr-title { margin-top: 10px; color: #fff; font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(1.55rem, 2.5vw, 2.15rem); line-height: 1.08; letter-spacing: -0.015em; }
-.jr-body { margin-top: 12px; max-width: 38ch; font-size: 15.5px; line-height: 1.62; color: rgba(255,255,255,.74); }
-.jr-note { font-size: 12.5px; color: rgba(255,255,255,.5); }
-.jr-result { margin-top: 18px; display: grid; gap: 14px; }
-.jr-result p { display: flex; align-items: baseline; gap: 12px; border-top: 1px solid rgba(169,196,230,.28); padding-top: 12px; }
-.jr-result b { flex-shrink: 0; min-width: 5.2ch; font: 700 clamp(22px, 2.4vw, 30px)/1 'IBM Plex Mono', ui-monospace, monospace; color: #fff; }
-.jr-result span { font-size: 13.5px; line-height: 1.45; color: rgba(255,255,255,.7); }
-.jr-link { margin-top: 16px; font-size: 13.5px; font-weight: 600; color: #A9C4E6; background: none; border: 0; padding: 0; cursor: pointer; }
+.jr-eyebrow { font: 600 12px/1.4 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: #8FB3E0; }
+.jr-title { margin-top: 12px; color: #fff; font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(1.9rem, 2.7vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
+.jr-body { margin-top: 16px; max-width: 40ch; font-size: 16.5px; line-height: 1.62; color: rgba(236,241,247,.82); text-wrap: pretty; }
+.jr-note { font-size: 12.5px; color: rgba(236,241,247,.55); }
+.jr-result { margin-top: 20px; display: grid; gap: 14px; }
+.jr-result p { display: flex; align-items: baseline; gap: 14px; border-top: 1px solid rgba(169,196,230,.3); padding-top: 12px; }
+.jr-result b { flex-shrink: 0; min-width: 5.2ch; font: 700 clamp(24px, 2.4vw, 32px)/1 'IBM Plex Mono', ui-monospace, monospace; color: #fff; }
+.jr-result span { font-size: 14px; line-height: 1.45; color: rgba(236,241,247,.75); }
+.jr-link { margin-top: 18px; font-size: 14px; font-weight: 600; color: #A9C4E6; background: none; border: 0; padding: 0; cursor: pointer; }
 .jr-link:hover { color: #fff; }
 
-.jr-view { position: relative; min-width: 0; min-height: 0; }
+.jr-view { position: absolute; inset: 0; z-index: 1; }
 .jr-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
 .jr-pulse { transform-box: fill-box; transform-origin: center; animation: fn-pulse 2.2s ease-in-out infinite; }
 .jr-grow, .jr-grit { transform-box: fill-box; transform-origin: center; }
 .jr-flash { animation: jr-flicker .9s steps(2, jump-none) infinite; }
 @keyframes jr-flicker { 0% { fill-opacity: 1; } 50% { fill-opacity: .25; } 100% { fill-opacity: 1; } }
 
-.jr-scope { position: absolute; right: 1%; top: 47%; width: min(40%, 50svh); aspect-ratio: 1; translate: 0 -50%; transform-origin: center; transition: none; }
-.jr-scope > svg { filter: drop-shadow(0 20px 50px rgba(0,0,0,.6)); }
-.jr-scope-unit, .jr-scope-state { position: absolute; left: 50%; translate: -50% 0; font: 700 11px 'IBM Plex Mono', ui-monospace, monospace; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.jr-scope { position: absolute; z-index: 3; right: 160px; top: 50%; width: min(32%, 46svh); aspect-ratio: 1; translate: 0 -50%; transform-origin: center; transition: none; }
+.jr-scope > svg { filter: drop-shadow(0 24px 60px rgba(0,0,0,.7)); }
+.jr-scope-unit, .jr-scope-state { position: absolute; left: 50%; translate: -50% 0; font: 700 11.5px 'IBM Plex Mono', ui-monospace, monospace; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
 .jr-scope-unit { top: 4%; color: #0B0D11; background: #fff; }
-.jr-scope-state { bottom: 4%; color: #DDE7F4; background: rgba(14,17,22,.85); border: 1px solid rgba(255,255,255,.3); }
+.jr-scope-state { bottom: 4%; color: #DDE7F4; background: rgba(14,17,22,.88); border: 1px solid rgba(255,255,255,.3); }
 .jr-scope-state[data-bad] { color: #FFB27A; border-color: rgba(255,138,61,.7); }
-.jr-scope-cap { position: absolute; left: 50%; top: calc(100% + 12px); translate: -50% 0; width: 112%; text-align: center; font-size: 12.5px; line-height: 1.5; color: rgba(221,228,236,.75); }
+.jr-scope-cap { position: absolute; left: 50%; top: calc(100% + 14px); translate: -50% 0; width: 110%; text-align: center; font-size: 13.5px; line-height: 1.5; color: rgba(236,241,247,.85); }
 
-.jr-thermo { position: absolute; left: 58px; top: 4%; z-index: 2; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: rgba(255,138,61,.14); border: 1px solid rgba(255,138,61,.55);
-  font: 700 13px 'IBM Plex Mono', ui-monospace, monospace; color: #FFD2B0; }
+.jr-thermo { position: absolute; z-index: 3; left: 50%; top: 96px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,138,61,.14); border: 1px solid rgba(255,138,61,.55);
+  font: 700 14px 'IBM Plex Mono', ui-monospace, monospace; color: #FFD2B0; backdrop-filter: blur(6px); }
 .jr-thermo[data-cold="1"] { background: rgba(127,166,218,.14); border-color: rgba(127,166,218,.6); color: #D6E4F7; }
-.jr-scalebar { position: absolute; left: 58px; bottom: 6px; z-index: 2; display: flex; align-items: center; gap: 10px; }
-.jr-scalebar span { display: block; height: 7px; border: 1.5px solid rgba(255,255,255,.85); border-top: 0; }
-.jr-scalebar b { font: 600 11px 'IBM Plex Mono', ui-monospace, monospace; color: rgba(255,255,255,.85); }
-.jr-view::before { content: ""; position: absolute; left: -2px; top: 0; bottom: 0; width: 84px; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(11,13,17,.9) 0%, rgba(11,13,17,.55) 50%, rgba(11,13,17,0) 100%); }
-.jr-ruler { position: absolute; left: 0; top: 14%; height: 72%; width: 44px; border-left: 1px solid rgba(169,196,230,.3); z-index: 2; --pos: 0; }
-.jr-ruler span { position: absolute; left: 7px; translate: 0 -50%; font: 500 9.5px 'IBM Plex Mono', ui-monospace, monospace; color: rgba(169,196,230,.55); white-space: nowrap; }
-.jr-ruler span { transition: color .3s; }
+.jr-scalebar { position: absolute; z-index: 3; right: 64px; bottom: 30px; display: flex; align-items: center; gap: 10px; }
+.jr-scalebar span { display: block; height: 8px; border: 1.5px solid rgba(255,255,255,.9); border-top: 0; }
+.jr-scalebar b { font: 600 12px 'IBM Plex Mono', ui-monospace, monospace; color: rgba(255,255,255,.9); }
+.jr-mag { position: absolute; z-index: 3; right: 64px; top: calc(20% - 62px); text-align: right; }
+.jr-mag b { display: block; font: 700 22px/1 'IBM Plex Mono', ui-monospace, monospace; color: #fff; font-variant-numeric: tabular-nums; }
+.jr-mag span { display: block; margin-top: 5px; font: 500 10.5px 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: rgba(169,196,230,.8); }
+.jr-ruler { position: absolute; z-index: 3; right: 64px; top: 20%; height: 60%; width: 64px; border-right: 1px solid rgba(169,196,230,.35); --pos: 0; }
+.jr-ruler span { position: absolute; right: 10px; translate: 0 -50%; font: 500 11px 'IBM Plex Mono', ui-monospace, monospace; color: rgba(169,196,230,.7); white-space: nowrap; transition: color .3s; }
 .jr-ruler span[data-on] { color: #fff; font-weight: 700; }
-.jr-ruler span::before { content: ""; position: absolute; left: -7px; top: 50%; width: 4px; height: 1px; background: rgba(169,196,230,.5); }
-.jr-ruler i { position: absolute; left: -4px; top: calc(var(--pos) * 92%); width: 7px; height: 7px; border-radius: 50%; background: #fff; translate: 0 -50%; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
+.jr-ruler span::after { content: ""; position: absolute; right: -10px; top: 50%; width: 6px; height: 1px; background: rgba(169,196,230,.6); }
+.jr-ruler i { position: absolute; right: -5px; top: calc(var(--pos) * 92%); width: 9px; height: 9px; border-radius: 50%; background: #fff; translate: 0 -50%; box-shadow: 0 0 0 5px rgba(255,255,255,.12), 0 0 18px rgba(169,196,230,.8); }
 
-.jr-rail { position: absolute; right: 20px; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; gap: 14px; z-index: 5; }
-.jr-rail-item { position: relative; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,.4); background: transparent; cursor: pointer; padding: 0; transition: transform .3s, background .3s; }
+.jr-rail { position: absolute; right: 22px; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; gap: 16px; z-index: 5; }
+.jr-rail-item { position: relative; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,.45); background: transparent; cursor: pointer; padding: 0; transition: transform .3s, background .3s; }
 .jr-rail-item::before { content: ""; position: absolute; inset: -9px; }
-.jr-rail-item[data-state="past"] { background: rgba(169,196,230,.5); border-color: transparent; }
-.jr-rail-item[data-state="on"] { background: #fff; border-color: #fff; transform: scale(1.25); }
-.jr-rail-item span { position: absolute; right: 20px; top: 50%; translate: 0 -50%; font-size: 11.5px; color: #fff; white-space: nowrap; opacity: 0; transition: opacity .25s; pointer-events: none; }
-.jr-rail-item:hover span, .jr-rail-item:focus-visible span { opacity: .85; }
-.jr-rail-item span { background: rgba(11,13,17,.85); padding: 2px 8px; border-radius: 999px; }
-.jr-hint { position: absolute; left: 50%; bottom: 40px; translate: -50% 0; font-size: 12px; letter-spacing: .04em; color: rgba(221,228,236,.7); }
+.jr-rail-item[data-state="past"] { background: rgba(169,196,230,.55); border-color: transparent; }
+.jr-rail-item[data-state="on"] { background: #fff; border-color: #fff; transform: scale(1.3); }
+.jr-rail-item span { position: absolute; right: 22px; top: 50%; translate: 0 -50%; font-size: 12px; color: #fff; white-space: nowrap; opacity: 0; transition: opacity .25s; pointer-events: none; background: rgba(11,13,17,.88); padding: 3px 9px; border-radius: 999px; }
+.jr-rail-item:hover span, .jr-rail-item:focus-visible span { opacity: .9; }
+.jr-hint { position: absolute; z-index: 3; left: 64%; bottom: 34px; translate: -50% 0; font-size: 13px; letter-spacing: .03em; color: rgba(236,241,247,.8); }
 .jr-hint span { display: inline-block; margin-left: 8px; animation: lab-bob 1.8s ease-in-out infinite; }
 @keyframes lab-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
 /* Ohne Bewegung: Standbilder untereinander */
 .jr-static { padding: 24px max(4vw, calc((100vw - 1320px) / 2)) 72px; display: grid; gap: 56px; }
 .jr-still { display: grid; grid-template-columns: minmax(260px, 370px) minmax(0, 1fr); gap: clamp(20px, 3vw, 48px); align-items: center; }
-.jr-still .jr-view { height: min(62svh, 560px); }
+.jr-still .jr-view { position: relative; inset: auto; height: min(62svh, 560px); }
+.jr-still .jr-text { position: relative; top: auto; bottom: auto; left: auto; width: auto; }
 .jr-text--still .jr-beat { position: static; translate: none; }
 
 @media (max-width: 899px) {
-  .jr-stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 58fr) minmax(0, 42fr); padding: 64px 0 0; column-gap: 0; }
-  .jr-view { grid-row: 1; }
-  .jr-text { grid-row: 2; margin: 0 16px; }
+  .jr-stage::before { background: linear-gradient(0deg, rgba(7,9,12,.96) 0%, rgba(7,9,12,.88) 36%, rgba(7,9,12,0) 50%); }
+  .jr-view { top: 56px; bottom: 38%; }
+  .jr-text { top: auto; bottom: 0; left: 16px; right: 16px; width: auto; height: 40%; }
   .jr-beat { top: 14px; translate: none; }
-  .jr-title { font-size: 1.4rem; margin-top: 6px; }
-  .jr-body { font-size: 14.5px; margin-top: 8px; line-height: 1.55; }
-  .jr-ruler, .jr-rail, .jr-scope-cap, .jr-view::before { display: none; }
-  .jr-thermo { left: 16px; top: 8px; }
-  .jr-scalebar { left: 16px; bottom: 8px; }
-  .jr-scope { right: 12px; top: auto; bottom: 8px; width: min(44vw, 30svh); translate: none; }
-  .jr-hint { bottom: 12px; }
+  .jr-title { font-size: 1.45rem; margin-top: 6px; }
+  .jr-body { font-size: 15px; margin-top: 8px; line-height: 1.55; }
+  .jr-ruler, .jr-rail, .jr-scope-cap, .jr-mag { display: none; }
+  .jr-thermo { left: 16px; top: 72px; }
+  .jr-scalebar { right: 16px; bottom: calc(40% + 8px); }
+  .jr-scope { right: 12px; top: auto; bottom: calc(40% + 8px); width: min(44vw, 28svh); translate: none; }
+  .jr-hint { left: 50%; bottom: calc(40% + 12px); }
   .jr-static { padding: 16px 16px 56px; gap: 40px; }
   .jr-still { grid-template-columns: minmax(0, 1fr); }
   .jr-still .jr-view { grid-row: 1; height: 56svh; }

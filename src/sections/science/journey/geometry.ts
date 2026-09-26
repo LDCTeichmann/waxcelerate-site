@@ -88,19 +88,72 @@ export function platePath(rE: number, rW: number) {
 export const OUTER_PLATE = platePath(4.1, 3.2);
 export const INNER_PLATE = platePath(4.35, 3.45);
 
+// ─── Zahnform nach ISO 606 (Rollenketten, Serie 081/082 = Fahrrad) ─────────
+// d1 = 7,75 mm Rolle. Die Norm gibt fuer jede Groesse eine Spanne; wir nehmen
+// jeweils die Mitte:
+//   Rollensitz   ri = 0,505·d1 … 0,505·d1 + 0,069·∛d1   → ~3,98 mm
+//   Sitzwinkel   α  = 120° − 90°/z … 140° − 90°/z        → ~127,8°
+//   Flanke       re = 0,12·d1·(z+2) … 0,008·d1·(z²+180)  → ~60 mm
+//   Kopfkreis    da = d + p·(1 − 1,6/z) − d1 … d + 1,25p − d1
+// Die Flanke ist ein Kreisbogen, der den Rollensitz am Ende des Sitzwinkels
+// tangential fortsetzt. Die Kontur wird einmal beim Laden abgetastet.
+export const D1 = ROLLER_R * 2;
+export const SEAT_R = 0.505 * D1 + 0.5 * 0.069 * Math.cbrt(D1);
+const SEAT_ALPHA = ((130 - 90 / TEETH) * Math.PI) / 180;
+const FLANK_R = 60;
+const TIP_R = RING_R + (PITCH * (1 - 1.6 / TEETH) - D1 + (1.25 * PITCH - D1)) / 4;
+export const ROOT_R = RING_R - SEAT_R;
+/** Lochkreis 110 mm (5 Arme), der Standard fuer Rennrad-Kurbeln mit 2 Blaettern. */
+export const BCD_R = 55;
+export const RING_INNER_R = 47.5;
+
+const seat = (k: number) => { const a = k * DELTA; return { x: RING_R * Math.sin(a), y: -RING_R * Math.cos(a) }; };
+/** Mittelpunkt des Flankenkreises, der am Sitz von Bolzen k zur Seite dir (±1) anschliesst. */
+function flankCenter(k: number, dir: 1 | -1) {
+  const p = seat(k), n = seat(k + dir);
+  const ux = -p.x / RING_R, uy = -p.y / RING_R;                     // nach innen
+  const pick = (s: number) => { const c = Math.cos(s * SEAT_ALPHA / 2), si = Math.sin(s * SEAT_ALPHA / 2); return { x: ux * c - uy * si, y: ux * si + uy * c }; };
+  let nv = pick(1);
+  if (nv.x * (n.x - p.x) + nv.y * (n.y - p.y) < 0) nv = pick(-1);
+  const E = { x: p.x + SEAT_R * nv.x, y: p.y + SEAT_R * nv.y };
+  return { x: E.x + FLANK_R * nv.x, y: E.y + FLANK_R * nv.y };
+}
+const FLANK_C = Array.from({ length: TEETH }, (_, k) => ({ fwd: flankCenter(k, 1), back: flankCenter(k + 1, -1) }));
+const d2 = (a: { x: number; y: number }, x: number, y: number) => (a.x - x) ** 2 + (a.y - y) ** 2;
+
+function material(x: number, y: number) {
+  const r2 = x * x + y * y;
+  if (r2 > TIP_R * TIP_R) return false;
+  let a = Math.atan2(x, -y); if (a < 0) a += Math.PI * 2;
+  const k = Math.floor(a / DELTA);
+  const p = seat(k), q = seat(k + 1);
+  if (d2(p, x, y) < SEAT_R * SEAT_R || d2(q, x, y) < SEAT_R * SEAT_R) return false;
+  if (r2 <= ROOT_R * ROOT_R) return true;
+  const f = FLANK_C[k % TEETH];
+  return d2(f.fwd, x, y) <= FLANK_R * FLANK_R && d2(f.back, x, y) <= FLANK_R * FLANK_R;
+}
+
 /** Zahnkontur des Kettenblatts im eigenen (ungedrehten) Rahmen. */
 export const RING_PATH = (() => {
   const pts: string[] = [];
-  const steps = TEETH * 8;
-  for (let i = 0; i <= steps; i++) {
-    const a = (i / steps) * Math.PI * 2;
-    // Zahngrund genau unter jedem Bolzen (a = k·Delta), Spitze dazwischen.
-    const ph = (a / DELTA) % 1;
-    const tooth = Math.pow(Math.sin(Math.PI * ph), 1.6);
-    const r = RING_R - ROLLER_R - 0.35 + tooth * 7.2;
-    pts.push(`${(r * Math.sin(a)).toFixed(2)} ${(-r * Math.cos(a)).toFixed(2)}`);
+  const steps = TEETH * 36;
+  for (let i = 0; i < steps; i++) {
+    const a = (i / steps) * Math.PI * 2, sx = Math.sin(a), sy = -Math.cos(a);
+    let r = TIP_R;
+    while (r > ROOT_R - 0.5 && !material(r * sx, r * sy)) r -= 0.015;
+    pts.push(`${(r * sx).toFixed(3)} ${(r * sy).toFixed(3)}`);
   }
   return `M${pts.join(' L')} Z`;
+})();
+
+/** Innenkante des Blatts als Loch (fuer evenodd). */
+export const RING_HOLE = `M0 ${-RING_INNER_R} A${RING_INNER_R} ${RING_INNER_R} 0 1 0 0 ${RING_INNER_R} A${RING_INNER_R} ${RING_INNER_R} 0 1 0 0 ${-RING_INNER_R} Z`;
+
+/** Ein Spider-Arm von der Nabe zum Kettenblattbolzen, entlang +y (nach unten), danach gedreht. */
+export const SPIDER_ARM = (() => {
+  const h = 20, w0 = 12, w1 = 6.6;
+  return `M${-w0} ${h} C${-w0 * 0.8} ${h + 14} ${-w1 - 1.2} ${BCD_R - 12} ${-w1} ${BCD_R - 2} A${w1 + 0.2} ${w1 + 0.2} 0 0 0 ${w1} ${BCD_R - 2} `
+    + `C${w1 + 1.2} ${BCD_R - 12} ${w0 * 0.8} ${h + 14} ${w0} ${h} Z`;
 })();
 
 // ─── Kontaktrahmen: Spalt und Film an der Druckseite von Bolzen B ───────────
