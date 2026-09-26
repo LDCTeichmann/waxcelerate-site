@@ -153,3 +153,18 @@ Alle bewusst nicht mitgeändert: das sind inhaltliche Entscheidungen.
 - [ ] Reduzierte Bewegung: keine Tick-Staffelung, kein Zonenwechsel, Endzustand direkt
 - [ ] Mobil unter 400 px: Gelenkschnitt und Timeline bleiben lesbar
 - [ ] Rechner zeigt bei 53 und 95 exakt 40.280
+
+---
+
+## Premium-Umbau 26./27.09.2026
+
+- **Kettenblatt nach ISO 606** (`journey/geometry.ts`): Rollensitz, Sitzwinkel, Flankenradius und Kopfkreis jeweils in der Mitte der Normspanne. Lochkreis 110 mm, 5 Arme.
+- **Hotspots** (`JOURNEY_HOTSPOTS` in `src/lib/science.ts`): 16 antippbare Stellen mit Physik-Karte. Positionen löst `ANCHORS` in `Journey.tsx` auf.
+- **Leerlauf-Vorschau**: nach 3 s ohne Eingabe läuft die Kette, kein Autoscroll. Nach 8 s Stillstand mitten in der Reise erscheint „Weiter ↓“.
+- **Hero**: `ChainringHero` (dieselbe Welt wie die Reise). Das Kassettenfoto kommt zurück, wenn `HERO_VARIANT` in `SciencePage.tsx` auf `'cassette'` steht.
+- **Dunkel**: `<main className="noir sci">`, Tokens in `index.css` unter `.sci`.
+
+### Offen, Luca entscheidet
+
+- Takt „Gegen das Absinken“: Der Satz „Esterhülle hält es in der Schwebe“ ist ersetzt (ein Dispergiermittel verhindert Verklumpen, einzelne 5-µm-Partikel sinken trotzdem ~1 mm/min). Der Folgesatz „So enthält der letzte Block einer Charge so viel wie der erste“ hängt am Rühren beim Gießen, bitte bestätigen.
+- Laschenhöhe (8,2/8,7 mm) nicht angepasst, keine belastbare Quelle gefunden.
