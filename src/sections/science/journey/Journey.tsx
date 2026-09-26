@@ -162,7 +162,10 @@ function Scope({ cfg, de, id }: { cfg: ScopeCfg; de: boolean; id: string }) {
 // ─── Buehne: SVG + Ueberlagerungen, von aussen per Takt-Position gesteuert ───
 export interface StageApi { render: (b: number) => void; measure: () => void }
 
-const RULER_LABELS = ['10 cm', '1 cm', '1 mm', '100 µm', '10 µm', '1 µm', '100 nm', '10 nm'];
+// Sichtfeld-Breite in Zehnerschritten. Die Kamera faehrt bis ~10 µm; was
+// darunter liegt, zeigt die Lupe mit eigenem Massstab (nm).
+const RULER_LABELS = ['10 cm', '1 cm', '1 mm', '100 µm', '10 µm'];
+const RULER_MM = [100, 0.01] as const;
 
 /** Die Buehne: besitzt alle Refs selbst und gibt nach aussen nur render(b)
  *  und measure() heraus. So bleibt die Steuerung (Scroll oder Standbild)
@@ -298,7 +301,7 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
         }
       }
       if (ruler.current) {
-        const pos = clamp01((Math.log10(200) - Math.log10(fov)) / (Math.log10(200) - Math.log10(1e-5)));
+        const pos = clamp01((Math.log10(RULER_MM[0]) - Math.log10(fov)) / (Math.log10(RULER_MM[0]) - Math.log10(RULER_MM[1])));
         ruler.current.style.setProperty('--pos', pos.toFixed(4));
         // Die naechstliegende Groessenordnung leuchtet mit.
         const on = Math.round(pos * (RULER_LABELS.length - 1));
