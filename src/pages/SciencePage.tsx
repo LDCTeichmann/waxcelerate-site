@@ -12,7 +12,8 @@ import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { waxVsOil, products, type Product } from '@/lib/data';
 import { COMPONENTS, EDGES, FAILURES, FORMULA_STORY } from '@/lib/science';
-import { Journey } from '@/sections/science/journey/Journey';
+import { Journey, ChainringHero } from '@/sections/science/journey/Journey';
+import { NANO, type NanoKey } from '@/sections/science/journey/NanoScenes';
 import { LineChoice } from '@/sections/science/ContactZones';
 import '@/pages/product/wax/wax.css';
 import { ComponentDiagram } from '@/sections/science/diagrams';
@@ -24,122 +25,61 @@ import { CalcTrace } from '@/components/tools/CalcTrace';
 
 const W = 'wx-frame';
 
-// ─── Opening hero — the page's actual "hero" moment: headline stats + a large
-// cassette rendering. Deliberately sober, not a dark photo stage — the page's
-// whole pitch is "gemessen, nicht behauptet," so a loud hero would undercut
-// its own argument. The one accent is a soft radial glow behind the cassette
-// image (same technique as FormulaStory's glow further down), just enough to
-// read as an entrance rather than another plain instrument panel. All numbers
-// come from the same `waxVsOil` source as the homepage's why-wax section — no
-// invented stats. ProblemHero below carries on with the sober toggle deep-dive.
+// ─── Hero ───────────────────────────────────────────────────────────────────
+// 27.09.2026: dunkel wie der Rest der Seite. Rechts dieselbe Welt wie die
+// Formel-Reise (gezeichnetes Kettenblatt nach ISO 606, Kette laeuft ruhig,
+// Linse auf ein Gelenk im Schnitt), damit der Hero Bild 0 der Reise ist und
+// kein Foto davor. Das Kassettenfoto mit Lupe bleibt als Variante erhalten:
+// HERO_VARIANT auf 'cassette' stellen, sonst aendert sich nichts.
+// Zahlen nur aus `waxVsOil` (data.ts), wie auf der Startseite.
+const HERO_VARIANT: 'chainring' | 'cassette' = 'chainring';
+
 function ScienceHero({ de }: { de: boolean }) {
   const w = waxVsOil.watts, l = waxVsOil.life;
-  // Three measurements, not four — "Trocken" isn't a measurement (no unit,
-  // no comparison value), it was padding out a 2x2 grid. It now lives as a
-  // half-sentence in the lede below instead of posing as a fourth data
-  // point. Icons dropped too: they were purely decorative next to a mono
-  // numeral that already reads as data on its own, and every other
-  // instrument panel on this page (FrictionWatts, TempWindow, HexMoS2) makes
-  // its case with numbers and labels alone, no iconography — these three
-  // cards now match that language instead of being the one exception.
-  // 2026-09-15: von drei auf zwei. Die dritte Kachel trug "μ 0,03-0,06 ·
-  // Reibung im Antrieb". Diese Zahl ist ein Kennwert des Feststoffs unter
-  // trockenen Laborbedingungen, kein gemessener Wert unseres Produkts im
-  // Antrieb, und MoS2 liegt in feuchter Luft deutlich hoeher (siehe
-  // WISSENSCHAFT_REDESIGN.md 1.1). Sie steht jetzt nur noch dort, wo sie
-  // hingehoert: im MoS2-Kapitel, mit der Umgebung daneben. Keine
-  // Ersatzkachel: die Intervalle unterscheiden sich je Produkt und die
-  // Rewax-Zahl ist eine offene Entscheidung, also lieber zwei belegte
-  // Kennzahlen als drei mit einer schwachen darunter. Dieselbe Logik wie
-  // beim Schritt von vier auf drei.
   const cards = [
     {
       value: `${w.wax[0]}–${w.wax[1]} W`,
-      sentenceDe: `Reibungsverlust in der Kette. Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
-      sentenceEn: `Friction loss in the chain. Oil needs ${w.oil[0]}–${w.oil[1]} W at the same power.`,
+      label: de ? 'Reibungsverlust in der Kette' : 'Friction loss in the chain',
+      sub: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung` : `Oil: ${w.oil[0]}–${w.oil[1]} W at the same power`,
     },
     {
       value: `${l.waxLo}–${l.wax}×`,
-      sentenceDe: 'Typische Kettenlebensdauer gegenüber Öl.',
-      sentenceEn: 'Typical chain lifespan versus oil.',
+      label: de ? 'Kettenlaufzeit' : 'Chain life',
+      sub: de ? 'typisch, gegenüber Öl' : 'typical, versus oil',
     },
   ];
-
   return (
-    <section className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
-      {/* Soft entrance glow behind the cassette image, right side of the
-          section on desktop where the photo actually sits — same radial-wash
-          + blur technique as FormulaStory's glow (below), just wider and
-          fainter since this sits behind a photo, not a line diagram.
-          overflow-hidden on the section contains the blur so it can't bleed
-          across the hairline border into ACT I below it. */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden
-        style={{
-          background: 'radial-gradient(ellipse 55% 60% at 78% 45%, var(--accent-wash-sm) 0%, transparent 70%)',
-          filter: 'blur(32px)',
-        }} />
-      {/* Wider than the page's usual max-w-4xl reading column — this is the
-          page's actual hero image, it needs room to be the dominant element
-          next to the text, not squeezed into what's left of a narrow column. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 lg:flex lg:items-center lg:gap-12 xl:gap-20">
-        <div className="max-w-lg lg:flex-shrink-0">
-          <BackLink de={de} className="mb-5" />
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Direktvergleich' : 'Direct comparison'}
-          </p>
-          <h1 className="font-display font-bold leading-[1.02] mb-4"
-            style={{ color: 'var(--tx1)', fontSize: 'clamp(2.4rem, 5.2vw, 4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
-          </h1>
-          <p className="text-lead mb-6" style={{ color: 'var(--txm)', maxWidth: '40ch' }}>
+    <section className="sci-hero">
+      <div className="sci-hero__in">
+        <div className="sci-hero__copy">
+          <BackLink de={de} className="mb-6" />
+          <p className="sci-eyebrow">{de ? 'Wissenschaft · Heißwachs gegen Öl' : 'Science · hot wax versus oil'}</p>
+          <h1 className="sci-hero__h1">{de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}</h1>
+          <p className="sci-hero__lede">
             {de
-              ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen. Trocken, ohne Flecken an Kleidung oder Fingern.'
-              : 'Same drivetrain, two lubricants — measured side by side. Dry, no stains on clothes or fingers.'}
+              ? 'Derselbe Antrieb, zwei Schmierstoffe, unabhängig gemessen. Und darunter die Physik, warum: vom Kettenblatt bis zum Molekül.'
+              : 'Same drivetrain, two lubricants, measured independently. And below it the physics of why: from the chainring down to the molecule.'}
           </p>
-
-          {/* Mobile/tablet: dieselbe Figur, nur inline ueber den Kennzahlen
-              statt daneben — bei dieser Breite ist kein Platz dafuer. */}
-          <div className="lg:hidden mb-6">
-            <CassetteLens de={de} />
-          </div>
-
-          {/* Stats — three measurements in one accent-topped row instead of a
-              hairline-divided list: the row reads as one instrument readout
-              (like FrictionWatts/TempWindow below it) rather than a stack of
-              separate facts, and num-data at almost double the previous size
-              actually looks like the page's central claim instead of a list
-              caption. */}
-          <div className="grid grid-cols-2 mb-8" style={{ borderTop: '1px solid var(--accent-soft)' }}>
-            {cards.map((c, i) => (
-              <div key={i} className="pt-3.5 pr-3"
-                style={{ borderLeft: i > 0 ? '1px solid var(--bd2)' : undefined, paddingLeft: i > 0 ? 14 : 0 }}>
-                <p className="num-data font-bold leading-none" style={{ color: 'var(--tx1)', fontSize: 'clamp(20px, 2.6vw, 26px)' }}>
-                  {c.value}
-                </p>
-                <p className="text-[12.5px] leading-snug mt-2" style={{ color: 'var(--tx2)' }}>
-                  {de ? c.sentenceDe : c.sentenceEn}
-                </p>
+          <dl className="sci-hero__stats">
+            {cards.map(c => (
+              <div key={c.label} className="sci-stat">
+                <dt>{c.label}</dt>
+                <dd><b>{c.value}</b><span>{c.sub}</span></dd>
               </div>
             ))}
-          </div>
-
-          <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
+          </dl>
+          <p className="sci-hero__src">
             {de
               ? `Wattzahlen: Laborwerte von Zero Friction Cycling bei ${w.inputW} W Tretleistung, nicht selbst gemessen.`
               : `Watt figures: lab values from Zero Friction Cycling at ${w.inputW} W pedalling power, not measured by us.`}
           </p>
-
-          <a href="#beweis" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
-            {de ? 'Woher die Zahlen kommen' : 'Where these numbers come from'}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </a>
+          <div className="sci-hero__cta">
+            <a href="#formel" className="sci-btn sci-btn--primary">{de ? 'Hineinzoomen' : 'Zoom in'}<ArrowRight className="h-4 w-4" /></a>
+            <a href="#beweis" className="sci-btn">{de ? 'Woher die Zahlen kommen' : 'Where the numbers come from'}</a>
+          </div>
         </div>
-
-        {/* Desktop: die Figur als normales Flex-Geschwister, sie rendert also
-            in ihrer natuerlichen Groesse und der Abschnitt waechst mit. Keine
-            feste Hoehe, an der etwas abgeschnitten werden koennte. */}
-        <div className="hidden lg:block lg:flex-1">
-          <CassetteLens de={de} />
+        <div className="sci-hero__fig">
+          {HERO_VARIANT === 'chainring' ? <ChainringHero de={de} /> : <CassetteLens de={de} />}
         </div>
       </div>
     </section>
@@ -499,43 +439,56 @@ function meshFor(node: number, de: boolean) {
   });
 }
 
+/** Molekuelbild aus der Lupe der Reise, als Standbild. */
+function SubstanceArt({ id, de }: { id: string; de: boolean }) {
+  const key = id as NanoKey;
+  const sc = NANO[key].render(NANO[key].still, de, false);
+  const cid = `sub-${id}`;
+  return (
+    <svg viewBox="0 0 240 240" className="sub-art" aria-hidden>
+      <defs>
+        <clipPath id={`${cid}-c`}><circle cx="120" cy="120" r="118" /></clipPath>
+        <radialGradient id={`${cid}-bg`} cx="0.5" cy="0.45" r="0.6"><stop offset="0" stopColor="#141922" /><stop offset="1" stopColor="#07090C" /></radialGradient>
+      </defs>
+      <g clipPath={`url(#${cid}-c)`}><rect width="240" height="240" fill={`url(#${cid}-bg)`} />{sc.art}</g>
+      <circle cx="120" cy="120" r="118.5" fill="none" stroke="rgba(169,196,230,0.45)" strokeWidth="2" />
+    </svg>
+  );
+}
+
 function ComponentDetails({ de }: { de: boolean }) {
   const [open, setOpen] = useState<string | null>(null);
   const steps = FORMULA_STORY
     .map(s => ({ comp: COMPONENTS.find(c => c.node === s.node)!, s }))
     .filter(x => x.comp && isFieldKey(x.comp.id));
   return (
-    <ol className="m-0 p-0 list-none">
+    <ol className="sub-grid">
       {steps.map(({ comp: c, s }, i) => {
         const isOpen = open === c.id;
         const mesh = meshFor(c.node, de);
         return (
-          <li key={c.id} id={c.id} className="scroll-mt-24"
-            style={{ borderTop: i === 0 ? '1px solid var(--bd2)' : undefined, borderBottom: '1px solid var(--bd2)' }}>
-            <button type="button" onClick={() => setOpen(isOpen ? null : c.id)} aria-expanded={isOpen}
-              className="w-full text-left py-4 flex items-baseline gap-4 transition-opacity hover:opacity-80">
-              <span className="num text-[12px] flex-shrink-0 w-6" style={{ color: 'var(--txf)' }}>0{i + 1}</span>
-              <span className="flex-1 min-w-0">
-                <span className="block font-display font-bold text-[18px] leading-tight" style={{ color: isOpen ? 'var(--accent)' : 'var(--tx1)' }}>
-                  {de ? c.nameDe : c.nameEn}
-                </span>
-                <span className="block text-[12.5px] mt-1" style={{ color: 'var(--txm)' }}>{de ? c.roleDe : c.roleEn}</span>
+          <li key={c.id} id={c.id} className={`sub-card scroll-mt-24${isOpen ? ' is-open' : ''}`}>
+            <button type="button" onClick={() => setOpen(isOpen ? null : c.id)} aria-expanded={isOpen} className="sub-head">
+              <SubstanceArt id={c.id} de={de} />
+              <span className="sub-meta">
+                <span className="sub-num">0{i + 1}</span>
+                <span className="sub-name">{de ? c.nameDe : c.nameEn}</span>
+                <span className="sub-role">{de ? c.roleDe : c.roleEn}</span>
               </span>
-              <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>{c.metric}</span>
-              <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform duration-300" style={{ transform: isOpen ? 'rotate(180deg)' : 'none', color: 'var(--txf)' }} aria-hidden />
+              <span className="sub-metric">{c.metric}</span>
+              <ChevronDown className="sub-chev" aria-hidden />
             </button>
-            <div style={{ display: 'grid', gridTemplateRows: isOpen ? '1fr' : '0fr', visibility: isOpen ? 'visible' : 'hidden',
-              transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1), visibility 0.4s' }}>
+            <div className="sub-body" style={{ gridTemplateRows: isOpen ? '1fr' : '0fr', visibility: isOpen ? 'visible' : 'hidden' }}>
               <div className="overflow-hidden">
-                <div className="pb-6 pl-10 grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-6">
+                <div className="sub-body-in">
                   <div>
-                    <p className="text-[14px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{de ? c.sumDe : c.sumEn}</p>
-                    <p className="text-[13.5px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>{de ? c.whyDe : c.whyEn}</p>
+                    <p className="text-[15px] leading-relaxed" style={{ color: 'var(--tx1)' }}>{de ? c.sumDe : c.sumEn}</p>
+                    <p className="text-[14px] leading-relaxed mt-3" style={{ color: 'var(--tx2)' }}>{de ? c.whyDe : c.whyEn}</p>
                     {mesh.length > 0 && (
                       <ul className="flex flex-wrap gap-1.5 mt-4">
                         {mesh.map((m, j) => (
                           <li key={j} className="text-[12px] rounded-full px-2.5 py-1"
-                            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx2)' }}>
+                            style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx2)' }}>
                             <b style={{ color: 'var(--tx1)', fontWeight: 600 }}>{m.name}</b>
                             <span style={{ color: 'var(--txf)' }}> {m.balance ? '⇄' : '·'} {m.label}</span>
                           </li>
@@ -548,9 +501,9 @@ function ComponentDetails({ de }: { de: boolean }) {
                   </div>
                   <Disclosure label={de ? 'Die Physik' : 'The physics'}>
                     <div className="pt-3 space-y-3">
-                      <p className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{de ? s.captionDe : s.captionEn}</p>
+                      <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>{de ? s.captionDe : s.captionEn}</p>
                       {(de ? c.physicsDe : c.physicsEn).map((t, j) => (
-                        <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{t}</p>
+                        <p key={j} className="text-[13.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>{t}</p>
                       ))}
                       <ComponentDiagram which={c.diagram} de={de} />
                       <Insight>{de ? c.insightDe : c.insightEn}</Insight>
@@ -638,7 +591,7 @@ export function SciencePage() {
 
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
-      <main id="main-content">
+      <main id="main-content" className="noir sci">
       {/* 25.09.2026: der Mikroskop-Abschnitt "Wie das aussieht" ist weg.
           Seine Bilder tragen eingebrannte, vergleichende Beschriftungen ohne
           eigene Messung, und der noetige Hinweis "keine eigenen Aufnahmen"
@@ -821,7 +774,8 @@ export function SciencePage() {
       </section>
       </main>
 
-      <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
+      <footer className="noir sci sci-foot">
+        <div className={`${W} py-12 text-center`}>
         <p className="text-meta mb-6" style={{ color: 'var(--txff)' }}>
           {de
             ? 'Quelle: Friction Facts, „Friction-Producing Mechanisms of a Bicycle Chain“, bereitgestellt von Zero Friction Cycling.'
@@ -831,6 +785,7 @@ export function SciencePage() {
           <ArrowLeft className="h-4 w-4" />
           {de ? 'Zurück zur Startseite' : 'Back to home'}
         </Link>
+        </div>
       </footer>
 
       <Footer />

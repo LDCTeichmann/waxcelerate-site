@@ -233,11 +233,15 @@ const RULER_MM = [100, 0.01] as const;
 /** Die Buehne: besitzt alle Refs selbst und gibt nach aussen nur render(b)
  *  und measure() heraus. So bleibt die Steuerung (Scroll oder Standbild)
  *  vom Zeichnen getrennt. */
-function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen }: {
+function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen, bare, cam: camOverride }: {
   de: boolean; scope: ScopeCfg | null; className: string;
-  text: React.ReactNode; extra?: React.ReactNode; rail?: React.ReactNode;
+  text?: React.ReactNode; extra?: React.ReactNode; rail?: React.ReactNode;
   handle: React.Ref<StageApi>;
   open?: string | null; setOpen?: (id: string | null) => void;
+  /** Ohne Instrumente (Lineal, Zaehler, Massstab), Motiv mittig: fuer Hero und Linse. */
+  bare?: boolean;
+  /** Feste Kamera statt der Takt-Kamera (Hero). */
+  cam?: Cam;
 }) {
   const id = useId().replace(/:/g, '');
   const stage = useRef<HTMLDivElement>(null);
@@ -267,15 +271,15 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
       c.b = b;
       if (!c.dims) measure();
       const d = c.dims; if (!st || !s || !d) return;
-      const cam = camAt(b);
+      const cam = camOverride ? { ...camOverride, film: 0 } : camAt(b);
       if (fx?.breathe) cam.w *= 1 - 0.035 * fx.breathe;
       // Bildausschnitt: w passt in die Breite, Hoehe mit Reserve
       // Desktop: die Buehne ist vollflaechig, links liegt der Text ueber einem
       // Verlauf. Das Motiv bekommt deshalb nur ~62 % der Breite und sitzt
       // rechts davon; im Film-Massstab rueckt es zur Mitte, weil rechts die Lupe steht.
-      const usable = d.mobile ? d.W : d.W * 0.62;
-      const S = Math.min(usable / cam.w, d.H / (cam.w * 0.62));
-      const ax = d.mobile ? 0.5 : lerp(0.64, 0.5, cam.film), ay = d.mobile ? lerp(0.5, 0.36, cam.film) : 0.53;
+      const usable = d.mobile || bare ? d.W : d.W * 0.62;
+      const S = bare ? Math.min(d.W / cam.w, d.H / cam.w) : Math.min(usable / cam.w, d.H / (cam.w * 0.62));
+      const ax = bare ? 0.5 : d.mobile ? 0.5 : lerp(0.64, 0.5, cam.film), ay = bare ? 0.5 : d.mobile ? lerp(0.5, 0.36, cam.film) : 0.53;
       const th = (cam.rot * Math.PI) / 180, co = Math.cos(th) * S, si = Math.sin(th) * S;
       const W: M = [co, si, -si, co, 0, 0];
       W[4] = ax * d.W - (W[0] * cam.fx + W[2] * cam.fy);
@@ -431,7 +435,7 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
         sEl.style.visibility = vis < 0.01 ? 'hidden' : 'visible';
       }
     },
-  }), [measure, de]);
+  }), [measure, de, bare, camOverride]);
 
   useImperativeHandle(handle, () => ({ render: api.render, measure }), [api, measure]);
   // Neue Lupe: Kegel und Deckkraft sofort fuer die aktuelle Position nachziehen.
@@ -448,6 +452,7 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
           <ContactLayer id={id} de={de} />
           <path ref={cone} fill="rgba(169,196,230,0.07)" stroke="rgba(169,196,230,0.5)" strokeWidth="1" style={{ opacity: 0 }} />
         </svg>
+        {!bare && <>
         <div ref={scopeEl} className="jr-scope" style={{ opacity: 0, visibility: 'hidden' }}>
           {scope && <Scope key={`${scope.key}-${scope.without}`} cfg={scope} de={de} id={id} />}
         </div>
@@ -458,13 +463,14 @@ function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen 
           {RULER_LABELS.map((l, i) => <span key={l} style={{ top: `${(i / (RULER_LABELS.length - 1)) * 92}%` }}>{l}</span>)}
           <i />
         </div>
-        <div ref={acts} className="jr-acts" aria-hidden>
+        </>}
+        {!bare && <div ref={acts} className="jr-acts" aria-hidden>
           {JOURNEY_ACTS.map((a, i) => i === 0 ? null : (
             <div key={i} data-act={i} style={{ visibility: 'hidden', opacity: 0 }}>
               <span>{ROMAN[i]} · {ACT_SCALE[i]}</span><b>{de ? a.de : a.en}</b>
             </div>
           ))}
-        </div>
+        </div>}
         {setOpen && (
           <div ref={hots} className="jr-hots">
             {JOURNEY_HOTSPOTS.map((h, i) => (
@@ -692,6 +698,48 @@ function JourneyStatic({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
   return (
     <div className="jr-static">
       {STILLS.map(b => <StillFrame key={b} b={b} de={de} onBeweis={onBeweis} />)}
+    </div>
+  );
+}
+
+// ─── Hero: dieselbe Welt als Standbild, die Kette laeuft ruhig ──────────────
+// Bild 0 der Reise, gross. Die Linse zeigt das Gelenk B im Halbschnitt, also
+// genau die Stelle, in die die Reise weiter unten hineinfaehrt.
+const HERO_CAM: Cam = { fx: -4, fy: -RING_R * 0.34, w: 176, rot: 0 };
+const LENS_CAM: Cam = { fx: PIN_B.x, fy: PIN_B.y - 0.35, w: 9.2, rot: 0 };
+
+export function ChainringHero({ de }: { de: boolean }) {
+  const ring = useRef<StageApi>(null);
+  const lens = useRef<StageApi>(null);
+  const box = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = box.current; if (!el) return;
+    const still = prefersReducedMotion();
+    let raf = 0, last = 0, spin = 0, on = false;
+    const draw = () => { ring.current?.render(0.9, { spin, breathe: 0 }); lens.current?.render(2.6); };
+    const loop = (now: number) => {
+      const dt = last ? Math.min(64, now - last) : 16.7; last = now;
+      spin += (dt / 1000) * DELTA * 0.55;
+      ring.current?.render(0.9, { spin, breathe: 0 });
+      raf = on ? requestAnimationFrame(loop) : 0;
+    };
+    const measureAll = () => { ring.current?.measure(); lens.current?.measure(); draw(); };
+    measureAll();
+    const io = new IntersectionObserver(([e]) => {
+      on = e.isIntersecting && !still;
+      if (on && !raf) { last = 0; raf = requestAnimationFrame(loop); }
+    });
+    io.observe(el);
+    window.addEventListener('resize', measureAll);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); window.removeEventListener('resize', measureAll); };
+  }, []);
+  return (
+    <div ref={box} className="sh-fig">
+      <Stage handle={ring} de={de} scope={null} className="sh-ring" bare cam={HERO_CAM} />
+      <div className="sh-lens" aria-hidden>
+        <Stage handle={lens} de={de} scope={null} className="sh-lens-stage" bare cam={LENS_CAM} />
+      </div>
+      <p className="sh-lens-cap">{de ? 'Ein Gelenk im Schnitt: Bolzen, Kragen, Rolle. Dazwischen arbeitet der Film.' : 'One joint in section: pin, collar, roller. The film works in between.'}</p>
     </div>
   );
 }
